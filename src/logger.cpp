@@ -38,7 +38,7 @@ std::string Logger::getLogLevelString(LogLevel logLevel) const {
 }
 
 void Logger::log(const std::string& message, LogLevel logLevel) {
-    if (logLevel < logLevel_) return; // сообщения с уровнем ниже не записываются
+    if (logLevel < logLevel_ || message.empty()) return; // сообщения с уровнем ниже не записываются
 
     std::lock_guard<std::mutex> lock(logMutex_);
     validateFile();

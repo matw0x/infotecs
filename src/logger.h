@@ -19,7 +19,7 @@ private:
     std::string getLogLevelString(LogLevel logLevel) const;
 
 public:
-    explicit Logger(const std::string& filename, LogLevel logLevel = INFO) noexcept;
+    explicit Logger(const std::string& filename, LogLevel logLevel = INFO);
 
     void log(const std::string& message, LogLevel logLevel = INFO);
     void changeLogLevel(LogLevel newLogLevel);
