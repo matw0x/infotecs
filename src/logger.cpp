@@ -3,8 +3,7 @@
 #include <sstream>
 #include <iomanip>
 
-constexpr char SPACE = ' ';
-constexpr char END = '\n';
+constexpr char SPACE = ' ', END = '\n';
 
 Logger::Logger(const std::string& filename, LogLevel logLevel) : 
 filename_(filename), logLevel_(logLevel), logFile_(filename_, std::ios::app) {
