@@ -3,15 +3,20 @@
 #include <sstream>
 #include <iomanip>
 
-Logger::Logger(const std::string& filename, LogLevel logLevel) : 
-filename_(filename), logLevel_(logLevel) {}
+constexpr char SPACE = ' ';
+constexpr char END = '\n';
 
-void Logger::validateFile(const std::ofstream& file) const {
-    if (!file.is_open()) throw std::runtime_error("Error: opening file!");
+Logger::Logger(const std::string& filename, LogLevel logLevel) : 
+filename_(filename), logLevel_(logLevel), logFile_(filename_, std::ios::app) {
+    validateFile();
 }
 
-void Logger::validateFileWriteSuccess(const std::ofstream& file) const {
-    if (file.fail()) throw std::runtime_error("Error: failed to write to file!");
+void Logger::validateFile() const {
+    if (!logFile_.is_open()) throw std::runtime_error("Error: opening file!");
+}
+
+void Logger::validateFileWriteSuccess() const {
+    if (logFile_.fail()) throw std::runtime_error("Error: failed to write to file!");
 }
 
 std::string Logger::getCurrentTime() const {
@@ -33,17 +38,16 @@ std::string Logger::getLogLevelString(LogLevel logLevel) const {
     }
 }
 
-constexpr char SPACE = ' ';
-constexpr char END = '\n';
-
 void Logger::log(const std::string& message, LogLevel logLevel) {
     if (logLevel < logLevel_) return; // сообщения с уровнем ниже не записываются
 
     std::lock_guard<std::mutex> lock(logMutex_);
+    validateFile();
 
-    std::ofstream logFile(filename_, std::ios::app);
-    validateFile(logFile);
+    logFile_ << getCurrentTime() << SPACE << getLogLevelString(logLevel) << SPACE << message << END;
+    logFile_.flush();
 
-    logFile << getCurrentTime() << SPACE << getLogLevelString(logLevel) << SPACE << message << END;
-    validateFileWriteSuccess(logFile);
+    validateFileWriteSuccess();
 }
+
+void Logger::changeLogLevel(LogLevel newLogLevel) { logLevel_ = newLogLevel; }
