@@ -1,20 +1,6 @@
 #include "player.h"
 
-void Player::play(const std::function<void()>& anyPlay) {
-    std::cout << "Nice choice!\n";
-    std::cout << "Control keys:\n"
-            << "\tW - up\n"
-            << "\tA - left\n"
-            << "\tS - down\n"
-            << "\tD - right\n";
-    
-    std::cout << "These messages will delete!\n";
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-
-    anyPlay();
-}
-
-void Player::processMove(const char& move) {
+void Player::processMove(char move) {
     Position newPosition = position_;
     switch (tolower(move)) {
         case 'w':
@@ -49,7 +35,20 @@ void Player::processMove(const char& move) {
 
 Player::Player(GameField* gameField) : position_(GAME_BEGIN), gameField_(gameField) {}
 
-void Player::playGameLoopWithoutDB() {
+void Player::printBeforePlay() const {
+    std::cout << "Nice choice!\n";
+    std::cout << "Control keys:\n"
+            << "\tW - up\n"
+            << "\tA - left\n"
+            << "\tS - down\n"
+            << "\tD - right\n";
+    
+    std::cout << "These messages will delete!\n";
+}
+
+void Player::play() {
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
     auto begin = std::chrono::high_resolution_clock::now();
     char move;
     while (true) {
@@ -69,33 +68,17 @@ void Player::playGameLoopWithoutDB() {
     }
 }
 
-void Player::playGameLoopWithDB() {
-    playGameLoopWithoutDB();
-
-    //auto time = gameDuration_.count();
-    
-}
-
-void Player::readme() {
+void Player::readme() const {
     std::cout << "Welcome in a simple game! Before starting:\n"
-                << "[0] - play with authorization\n"
-                << "[1] - play without authorization (your progress will not be save!)\n"
-                << "[2] - check the leaderboard\n"
-                << "[3] - settings\n"; 
+                << "[0] - play\n"
+                << "[1] - settings\n"; 
 }
 
-bool Player::handleChoice(const short& choice) {
+bool Player::handleChoice(short choice) {
     switch (choice) {
-        case PLAY_WITH_DB:
-            std::cout << "DATABASE IN DEVELOPING\n";
-            break;
-        case PLAY_WITHOUT_DB:
-            play([this]() -> void {
-                this->playGameLoopWithoutDB(); 
-            });
-            break;
-        case LEADERBOARD:
-            std::cout << "LEADERBOARD IN DEVELOPING\n";
+        case PLAY:
+            printBeforePlay();
+            play();
             break;
         case SETTINGS:
             std::cout << "SETTINGS IN DEVELOPING\n";

@@ -11,7 +11,7 @@ class GameField {
 private:
     std::vector<std::vector<char>> field_;
 
-    bool isPathExists(const Position& currentPos, std::queue<Position>& path, std::vector<std::vector<bool>>& visited);
+    bool isPathExists(Position currentPos, std::queue<Position>& path, std::vector<std::vector<bool>>& visited);
     void generateBlocks();
 
 public:
@@ -19,7 +19,7 @@ public:
 
     void display() const;
     void clearScreen() const;
-    bool isWalkable(const int& x, const int& y) const;
-    void clearPlayerPosition(const Position& position);
-    void setPlayerPosition(const Position& position);
+    bool isWalkable(int x, int y) const;
+    void clearPlayerPosition(Position position);
+    void setPlayerPosition(Position position);
 };

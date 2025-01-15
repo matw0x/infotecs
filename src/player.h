@@ -10,19 +10,17 @@
 
 class Player {
 private:
-    std::string login_; 
     Position position_;
     GameField* gameField_;
     std::chrono::duration<double> gameDuration_;
 
-    void play(const std::function<void()>& anyPlay); // anyPlay - с БД или без
-    void processMove(const char& move);
-    void playGameLoopWithoutDB();
-    void playGameLoopWithDB();
+    void processMove(char move);
+    void play();
+    void printBeforePlay() const;
 
 public:
     Player(GameField* gameField);
 
-    void readme();
-    bool handleChoice(const short& choice);
+    void readme() const;
+    bool handleChoice(short choice);
 };

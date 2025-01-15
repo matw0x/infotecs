@@ -9,8 +9,8 @@ int main() {
     pPlayer->readme();
     short input; std::cin >> input;
 
-    if (pPlayer->handleChoice(input)) {
-
+    if (!pPlayer->handleChoice(input)) {
+        //
     }
 
     delete pGameField;

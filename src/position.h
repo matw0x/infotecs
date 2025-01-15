@@ -28,16 +28,5 @@ const Position DOWN_POS = { 1, 0 };
 const Position LEFT_POS = { 0, -1 };
 const Position RIGHT_POS = { 0, 1 };
 
-enum Choice {
-    PLAY_WITH_DB,
-    PLAY_WITHOUT_DB,
-    LEADERBOARD,
-    SETTINGS
-};
-
-enum Direction {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT
-};
+enum Choice { PLAY, SETTINGS };
+enum Direction { UP, DOWN, LEFT, RIGHT };

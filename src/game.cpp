@@ -1,6 +1,6 @@
 #include "game.h"
 
-bool GameField::isPathExists(const Position& currentPos, std::queue<Position>& path, std::vector<std::vector<bool>>& visited) {
+bool GameField::isPathExists(Position currentPos, std::queue<Position>& path, std::vector<std::vector<bool>>& visited) {
     if (currentPos == GAME_END) return true;
 
     const Position directions[DIRECTION_SIZE] = { RIGHT_POS, UP_POS, LEFT_POS, DOWN_POS };
@@ -9,8 +9,7 @@ bool GameField::isPathExists(const Position& currentPos, std::queue<Position>& p
         Position next = { currentPos.x + directions[i].x, currentPos.y + directions[i].y };
 
         auto isInBound = [&]() -> bool {
-            return next.x >= 0 && next.x < ROWS 
-            && next.y >= 0 && next.y < COLUMNS; 
+            return next.x >= 0 && next.x < ROWS && next.y >= 0 && next.y < COLUMNS; 
         };
 
         auto isFree = [&]() -> bool {
@@ -108,7 +107,6 @@ void GameField::generateBlocks() {
     if (isInBounds(GAME_END.x, GAME_END.y - 1)) field_[GAME_END.x][GAME_END.y - 1] = NOTHING;
 }
 
-
 GameField::GameField() {
     std::vector<std::vector<char>> field(ROWS, std::vector<char>(COLUMNS));
     for (int i = 0; i != ROWS; ++i) {
@@ -155,7 +153,7 @@ void GameField::display() const {
     }
 }
 
-void GameField::clearPlayerPosition(const Position& position) {
+void GameField::clearPlayerPosition(Position position) {
     field_[position.x][position.y] = NOTHING;
 }
 
@@ -164,10 +162,10 @@ void GameField::clearScreen() const {
     if (res) return;
 }
 
-bool GameField::isWalkable(const int& x, const int& y) const {
+bool GameField::isWalkable(int x, int y) const {
     return field_[x][y] == NOTHING;
 }
 
-void GameField::setPlayerPosition(const Position& position) {
+void GameField::setPlayerPosition(Position position) {
     field_[position.x][position.y] = PLAYER;
 }
