@@ -15,18 +15,30 @@ APP_BIN = $(BUILD_DIR)/$(APP_TARGET)
 TEST_BIN = $(BUILD_DIR)/$(TEST_TARGET)
 LIBRARIES = $(BUILD_DIR)/$(LIBRARY_NAME)
 
-.PHONY: all library test clean CREATE_BUILD_DIR app
+INSTALL_DIR = /usr/local/lib
+
+.PHONY: all library test clean CREATE_BUILD_DIR app install uninstall
 
 all: CREATE_BUILD_DIR library app test
 
 app: CREATE_BUILD_DIR library
-	$(CXX) $(CXX_FLAGS) $(APP_SOURCES) -o $(APP_BIN) -L$(BUILD_DIR) -Wl,-rpath=$(BUILD_DIR) -llogger
+	$(CXX) $(CXX_FLAGS) $(APP_SOURCES) -o $(APP_BIN) -llogger
 
 library: CREATE_BUILD_DIR
 	$(CXX) $(CXX_FLAGS) -shared $(LIB_SOURCES) -o $(LIBRARIES)
 
 test: CREATE_BUILD_DIR library
-	$(CXX) $(CXX_FLAGS) $(TEST_SOURCES) -o $(TEST_BIN) -L$(BUILD_DIR) -Wl,-rpath=$(BUILD_DIR) -llogger
+	$(CXX) $(CXX_FLAGS) $(TEST_SOURCES) -o $(TEST_BIN) -llogger
+
+install: library
+	@sudo cp $(LIBRARIES) $(INSTALL_DIR)
+	@sudo ldconfig
+	@echo "Installed: $(LIBRARIES) to $(INSTALL_DIR)"
+
+uninstall:
+	@sudo rm -f $(INSTALL_DIR)/$(LIBRARY_NAME)
+	@sudo ldconfig
+	@echo "Uninstalled: $(LIBRARY_NAME) from $(INSTALL_DIR)"
 
 CREATE_BUILD_DIR: clean
 	@mkdir -p $(BUILD_DIR)
