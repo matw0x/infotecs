@@ -17,10 +17,11 @@ private:
     void processMove(char move);
     void play();
     void printBeforePlay() const;
+    void readme() const;
+    void handleChoice(short choice);
 
 public:
     Player(GameField* gameField);
 
-    void readme() const;
-    bool handleChoice(short choice);
+    void letsgo();
 };

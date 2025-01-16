@@ -1,4 +1,5 @@
 #include "player.h"
+#include "manager.h"
 
 void Player::processMove(char move) {
     Position newPosition = position_;
@@ -36,6 +37,7 @@ void Player::processMove(char move) {
 Player::Player(GameField* gameField) : position_(GAME_BEGIN), gameField_(gameField) {}
 
 void Player::printBeforePlay() const {
+    app.writeLog("Игрок получил информацию перед началом прохождения!");
     std::cout << "Nice choice!\n";
     std::cout << "Control keys:\n"
             << "\tW - up\n"
@@ -69,24 +71,34 @@ void Player::play() {
 }
 
 void Player::readme() const {
+    app.writeLog("Игрок получил инструкцию.");
     std::cout << "Welcome in a simple game! Before starting:\n"
                 << "[0] - play\n"
                 << "[1] - settings\n"; 
 }
 
-bool Player::handleChoice(short choice) {
+void Player::handleChoice(short choice) {
     switch (choice) {
         case PLAY:
+            app.writeLog("Игрок решил поиграть!");
             printBeforePlay();
             play();
             break;
         case SETTINGS:
+            app.writeLog("Игрок зашёл в настройки.");
             std::cout << "SETTINGS IN DEVELOPING\n";
             break;
         default:
+            app.writeLog("Игрок выбрал что-то непонятное...", LogLevel::ERROR);
             std::cout << "Unknown choice! Please enter the correct data.\n";
-            return false;
+            break;
     }
+}
 
-    return true;
+void Player::letsgo() {
+    readme();
+    short choice;
+    std::cin >> choice;
+
+    handleChoice(choice);
 }

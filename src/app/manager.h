@@ -12,14 +12,14 @@ private:
     std::unique_ptr<Player> player_;
     std::unique_ptr<Logger> logger_;
 
-    void runMulti() const;
-    void logMulti(const std::string& message) const;
+    void runGameMulti() const;
+    void logMulti(const std::string& message, LogLevel logLevel = INFO) const;
 
 public:
     MultithreadAppManager(const std::string& logFilename = "game_log.txt", 
     LogLevel logLevel = INFO, LogType logType = SAFELY);
 
-    void writeLog(const std::string& message) const;
+    void writeLog(const std::string& message, LogLevel logLevel = INFO) const;
     void run();
 };
 

@@ -8,6 +8,8 @@ LogLevel convertToLogLevel(const std::string& logLevelString) {
     else return static_cast<LogLevel>(-1);
 }
 
+MultithreadAppManager app;
+
 int main(int argc, char* argv[]) {
     if (argc < 3) {
         std::cerr << "Usage: " << argv[0] << " <log_file> <log_level>\n";
@@ -24,10 +26,3 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
-
-// pPlayer->readme();
-    // short input; std::cin >> input;
-
-    // if (!pPlayer->handleChoice(input)) {
-    //     //
-    // }

@@ -7,22 +7,22 @@ MultithreadAppManager::MultithreadAppManager
     logger_(std::make_unique<Logger>(logFilename, logLevel, logType)) {}
 
 void MultithreadAppManager::run() {
-    std::thread gameThread(&MultithreadAppManager::runMulti, this);
-    std::thread logThread(&MultithreadAppManager::logMulti, this);
+    std::thread gameThread([this]() { runGameMulti(); });
+    std::thread logThread([this]() { logMulti("Some log message", INFO); });
 
     gameThread.join();
     logThread.join();
 }
 
-void MultithreadAppManager::runMulti() const {
-    
+void MultithreadAppManager::runGameMulti() const {
+    player_->letsgo();
 }
 
-void MultithreadAppManager::logMulti(const std::string& message) const {
+void MultithreadAppManager::logMulti(const std::string& message, LogLevel logLevel) const {
     while (true) {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        logger_->log(message, logger_->getLogLevel());
+        logger_->log(message, logLevel);
     }
 }
 
-void MultithreadAppManager::writeLog(const std::string& message) const { logMulti(message); }
+void MultithreadAppManager::writeLog(const std::string& message, LogLevel logLevel) const { logMulti(message, logLevel); }
