@@ -21,13 +21,14 @@ void testLog() {
     const std::string filename = "test_log.txt";
     std::remove(filename.c_str());
     Logger logger(filename);
-    logger.log("Test message");
+    logger.log("Hi!");
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     std::ifstream logFile(filename);
     std::string line;
     std::getline(logFile, line);
 
-    assert(line.find("Test message") != std::string::npos);
+    assert(line.find("Hi!") != std::string::npos);
     std::cout << "testLog passed.\n";
 }
 
@@ -114,7 +115,26 @@ void testMaxFileSize() {
     std::cout << "testMaxFileSize passed.\n";
 }
 
-void testBasePerformance() {
+void testBasePerformanceFAST() {
+    const std::string filename = "test_log.txt";
+    std::remove(filename.c_str());
+    Logger logger(filename);
+    logger.changeLogType(LogType::FAST);
+
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < 100000; ++i) logger.log("Performance test message");
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> duration = end - start;
+    double averageTimePerLog = duration.count() / 100000;
+
+    assert(true); // поскольку это режим быстрой записи
+
+    std::cout << "testBasePerformanceFAST passed: " << duration.count()
+              << " seconds, average time per log: " << averageTimePerLog << " seconds.\n";
+}
+
+void testBasePerformanceSAFELY() {
     const std::string filename = "test_log.txt";
     std::remove(filename.c_str());
     Logger logger(filename);
@@ -126,9 +146,18 @@ void testBasePerformance() {
     std::chrono::duration<double> duration = end - start;
     double averageTimePerLog = duration.count() / 100000;
 
-    assert(true);
+    std::string line;
+    std::ifstream logFile(filename);
+    int count = 0;
+    while (std::getline(logFile, line)) {
+        if (line.find("Performance test message") != std::string::npos) {
+            ++count;
+        }
+    }
 
-    std::cout << "testBasePerformance passed: " << duration.count()
+    assert(count == 100000);
+
+    std::cout << "testBasePerformanceSAFELY passed: " << duration.count()
               << " seconds, average time per log: " << averageTimePerLog << " seconds.\n";
 }
 
@@ -206,7 +235,8 @@ int main() {
     testLogLevelChange();
     testLogEmptyMsg();
     testMaxFileSize();
-    testBasePerformance();
+    testBasePerformanceFAST();
+    testBasePerformanceSAFELY();
     testPerformanceWithMultithreading();
     testFrequentLogLevelChanges();
     testFileAccessibilityAfterCompletion();

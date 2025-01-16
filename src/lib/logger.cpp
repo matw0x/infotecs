@@ -5,8 +5,8 @@
 
 constexpr char SPACE = ' ', END = '\n';
 
-Logger::Logger(const std::string& filename, LogLevel logLevel) : 
-filename_(filename), logLevel_(logLevel), logFile_(filename_, std::ios::app) {
+Logger::Logger(const std::string& filename, LogLevel logLevel, LogType logType) : 
+filename_(filename), logLevel_(logLevel), logType_(logType), logFile_(filename_, std::ios::app) {
     validateFile();
 }
 
@@ -44,9 +44,13 @@ void Logger::log(const std::string& message, LogLevel logLevel) {
     validateFile();
 
     logFile_ << getCurrentTime() << SPACE << getLogLevelString(logLevel) << SPACE << message << END;
-    logFile_.flush();
 
-    validateFileWriteSuccess();
+    if (logType_ == SAFELY) {
+        logFile_.flush();
+        validateFileWriteSuccess();
+    }
 }
 
 void Logger::changeLogLevel(LogLevel newLogLevel) { logLevel_ = newLogLevel; }
+
+void Logger::changeLogType(LogType newLogType) { logType_ = newLogType; }
