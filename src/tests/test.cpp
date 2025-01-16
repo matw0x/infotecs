@@ -23,7 +23,6 @@ void testLog() {
     Logger logger(filename);
     logger.log("Hi!");
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     std::ifstream logFile(filename);
     std::string line;
     std::getline(logFile, line);

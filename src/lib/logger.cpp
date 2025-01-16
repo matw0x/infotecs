@@ -2,6 +2,8 @@
 #include <chrono>
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
+#include <filesystem>
 
 constexpr char SPACE = ' ', END = '\n';
 
@@ -10,8 +12,14 @@ filename_(filename), logLevel_(logLevel), logType_(logType), logFile_(filename_,
     validateFile();
 }
 
-void Logger::validateFile() const {
+bool Logger::hasValidExtension() {
+    std::filesystem::path filePath(filename_);
+    return filePath.extension() == ".txt";
+}
+
+void Logger::validateFile() {
     if (!logFile_.is_open()) throw std::runtime_error("Error: opening file!");
+    if (!hasValidExtension()) throw std::runtime_error("Error: file has invalid extension!");
 }
 
 void Logger::validateFileWriteSuccess() const {

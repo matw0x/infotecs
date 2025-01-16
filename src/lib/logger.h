@@ -15,7 +15,8 @@ private:
     std::mutex logMutex_;
     std::ofstream logFile_;
 
-    void validateFile() const;
+    bool hasValidExtension();
+    void validateFile();
     void validateFileWriteSuccess() const;
     std::string getCurrentTime() const;
     std::string getLogLevelString(LogLevel logLevel) const;
