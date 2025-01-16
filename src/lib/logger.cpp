@@ -18,8 +18,8 @@ bool Logger::hasValidExtension() {
 }
 
 void Logger::validateFile() {
-    if (!logFile_.is_open()) throw std::runtime_error("Error: opening file!");
     if (!hasValidExtension()) throw std::runtime_error("Error: file has invalid extension!");
+    if (!logFile_.is_open()) throw std::runtime_error("Error: opening file!");
 }
 
 void Logger::validateFileWriteSuccess() const {
@@ -62,3 +62,7 @@ void Logger::log(const std::string& message, LogLevel logLevel) {
 void Logger::changeLogLevel(LogLevel newLogLevel) { logLevel_ = newLogLevel; }
 
 void Logger::changeLogType(LogType newLogType) { logType_ = newLogType; }
+
+LogLevel Logger::getLogLevel() const { return logLevel_; }
+
+LogType Logger::getLogType() const { return logType_; }

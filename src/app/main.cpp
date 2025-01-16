@@ -22,12 +22,12 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // pPlayer->readme();
+    return 0;
+}
+
+// pPlayer->readme();
     // short input; std::cin >> input;
 
     // if (!pPlayer->handleChoice(input)) {
     //     //
     // }
-
-    return 0;
-}

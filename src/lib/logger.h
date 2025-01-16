@@ -27,4 +27,6 @@ public:
     void log(const std::string& message, LogLevel logLevel = INFO);
     void changeLogLevel(LogLevel newLogLevel);
     void changeLogType(LogType newLogType);
+    LogLevel getLogLevel() const;
+    LogType getLogType() const;
 };

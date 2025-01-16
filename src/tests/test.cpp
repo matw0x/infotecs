@@ -6,6 +6,9 @@
 #include <thread>
 #include <vector>
 
+// TODO: файл с неверным расширением; файл с записью в места, где нет прав;
+//       еще хотя бы 2 теста с многопоточностью
+
 void testCreateLogFile() {
     const std::string filename = "test_log.txt";
     std::remove(filename.c_str());
