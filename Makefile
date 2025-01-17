@@ -12,10 +12,10 @@ LIBRARY_NAME = liblogger.so
 APP_TARGET = app
 TEST_TARGET = test
 
-LIB_SOURCES = $(SOURCE_DIR)/$(LIBRARY_DIR)/*.cpp
 LIB_HEADERS = $(SOURCE_DIR)/$(LIBRARY_DIR)/*.h
-TEST_SOURCES = $(SOURCE_DIR)/$(TEST_DIR)/*.cpp
+LIB_SOURCES = $(SOURCE_DIR)/$(LIBRARY_DIR)/*.cpp
 APP_SOURCES = $(SOURCE_DIR)/$(APP_DIR)/*.cpp
+TEST_SOURCES = $(SOURCE_DIR)/$(TEST_DIR)/*.cpp $(shell find $(SOURCE_DIR)/$(APP_DIR) -type f -name '*.cpp' ! -name 'main.cpp')
 
 APP_BIN = $(BUILD_DIR)/$(APP_TARGET)
 TEST_BIN = $(BUILD_DIR)/$(TEST_TARGET)

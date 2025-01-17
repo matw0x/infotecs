@@ -4,7 +4,6 @@
 #include <iostream>
 #include <thread> //  for sleep_for
 #include <chrono> // for seconds
-#include <functional> // лямбда-функции в связке с коллбеками
 #include "position.h"
 #include "game.h"
 #include <mutex>

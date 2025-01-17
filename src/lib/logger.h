@@ -12,9 +12,8 @@ private:
     std::string filename_;
     LogLevel logLevel_;
     LogType logType_;
-    //std::mutex logMutex_;
+    std::mutex logMutex_;
     std::ofstream logFile_;
-    size_t flushCount;
 
     bool hasValidExtension();
     void validateFile();

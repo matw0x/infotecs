@@ -150,12 +150,6 @@ void GameField::calculateGameField() {
         if (isPathExists(GAME_BEGIN_, path, visited)) break;
         std::cout << "GENERATING #" << countGen++ << "...\n";
     }
-
-    // std::cout << GAME_BEGIN_.x << "; " << GAME_BEGIN_.y << std::endl;
-    // std::cout << GAME_BEGIN.x << "; " << GAME_BEGIN.y << std::endl;
-    // std::cout << "--------------------------------------------\n";
-    // std::cout << GAME_END_.x << "; " << GAME_END_.y << std::endl;
-    // std::cout << GAME_END.x << "; " << GAME_END.y << std::endl;
 }
 
 GameField::GameField(const int ROWS, const int COLUMNS) : 
