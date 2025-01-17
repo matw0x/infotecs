@@ -8,7 +8,8 @@
 constexpr char SPACE = ' ', END = '\n';
 
 Logger::Logger(const std::string& filename, LogLevel logLevel, LogType logType) : 
-filename_(filename), logLevel_(logLevel), logType_(logType), logFile_(filename_, std::ios::app) {
+filename_(filename), logLevel_(logLevel), logType_(logType), 
+logFile_(filename_, std::ios::app), flushCount(0) {
     validateFile();
 }
 
@@ -48,12 +49,11 @@ std::string Logger::getLogLevelString(LogLevel logLevel) const {
 void Logger::log(const std::string& message, LogLevel logLevel) {
     if (logLevel < logLevel_ || message.empty()) return; // сообщения с уровнем ниже не записываются
 
-    std::lock_guard<std::mutex> lock(logMutex_);
     validateFile();
 
     logFile_ << getCurrentTime() << SPACE << getLogLevelString(logLevel) << SPACE << message << END;
 
-    if (logType_ == SAFELY) {
+    if (logType_ == SAFELY && flushCount % 10 == 0) {
         logFile_.flush();
         validateFileWriteSuccess();
     }

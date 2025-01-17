@@ -157,7 +157,7 @@ void GameField::clearPlayerPosition(Position position) {
     field_[position.x][position.y] = NOTHING;
 }
 
-void GameField::clearScreen() const {
+void GameField::clearScreen() {
     auto res = system("clear");
     if (res) return;
 }

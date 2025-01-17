@@ -18,7 +18,7 @@ public:
     GameField();
 
     void display() const;
-    void clearScreen() const;
+    void clearScreen();
     bool isWalkable(int x, int y) const;
     void clearPlayerPosition(Position position);
     void setPlayerPosition(Position position);

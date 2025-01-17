@@ -8,7 +8,7 @@ LogLevel convertToLogLevel(const std::string& logLevelString) {
     else return static_cast<LogLevel>(-1);
 }
 
-MultithreadAppManager app;
+std::unique_ptr<MultithreadAppManager> app = nullptr;
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
@@ -17,8 +17,8 @@ int main(int argc, char* argv[]) {
     }
 
     try {
-        app = MultithreadAppManager(argv[1], convertToLogLevel(argv[2]));
-        app.run();
+        app = std::make_unique<MultithreadAppManager>(argv[1], convertToLogLevel(argv[2]));
+        app->run();
     } catch (const std::invalid_argument& e) {
         std::cerr << e.what() << std::endl;
         return 1;
