@@ -174,8 +174,7 @@ void GameField::clearPlayerPosition(Position position) {
 }
 
 void GameField::clearScreen() const {
-    auto res = system("clear");
-    if (res) return;
+    system("clear");
 }
 
 bool GameField::isWalkable(int x, int y) const {

@@ -9,6 +9,7 @@
 #include <utility>
 #include <memory>
 #include <sstream>
+#include <random>
 #include "../app/manager.h"
 
 typedef std::vector<std::pair<std::string, std::function<void()>>> TEST_TYPE;
@@ -253,15 +254,196 @@ int main() {
     };
 
     TEST_TYPE multithreadGameWithLib = {
-        { "testInvalidMove", []() {
+        { "testInvalidMoveSMALL", []() {
                 const std::string filename = "test_lib_log.txt";
                 std::remove(filename.c_str());
 
-                std::istringstream inputStream("wdas");
+                const std::string commands = "wawaw";
+
+                std::istringstream inputStream(std::to_string(Choice::PLAY) + commands);
                 std::cin.rdbuf(inputStream.rdbuf());
 
                 app = std::make_unique<MultithreadAppManager>(filename);
                 app->run();
+
+                size_t WandFailed = 0, AandFailed = 0;
+                std::ifstream logFile(filename);
+                std::string line;
+                while (std::getline(logFile, line)) {
+                    if (line.find("Player::processMove | data = w") != std::string::npos) ++WandFailed;
+                    if (line.find("Player::processMove | failed to move up") != std::string::npos) ++WandFailed;
+
+                    if (line.find("Player::processMove | data = a") != std::string::npos) ++AandFailed;
+                    if (line.find("Player::processMove | failed to move left") != std::string::npos) ++AandFailed;
+                }
+
+                assert(WandFailed + AandFailed == commands.size() * 2);
+            }
+        },
+
+        { "testInvalidMoveBIG", []() {
+                const std::string filename = "test_lib_log.txt";
+                std::remove(filename.c_str());
+
+                const size_t commandSize = 10000;
+                std::string commands;
+                for (size_t i = 0; i != commandSize; ++i) commands += (i % 2 == 0) ? 'w' : 'a';
+
+                std::istringstream inputStream(std::to_string(Choice::PLAY) + commands);
+                std::cin.rdbuf(inputStream.rdbuf());
+
+                app = std::make_unique<MultithreadAppManager>(filename);
+                app->run();
+
+                size_t WandFailed = 0, AandFailed = 0;
+                std::ifstream logFile(filename);
+                std::string line;
+                while (std::getline(logFile, line)) {
+                    if (line.find("Player::processMove | data = w") != std::string::npos) ++WandFailed;
+                    if (line.find("Player::processMove | failed to move up") != std::string::npos) ++WandFailed;
+
+                    if (line.find("Player::processMove | data = a") != std::string::npos) ++AandFailed;
+                    if (line.find("Player::processMove | failed to move left") != std::string::npos) ++AandFailed;
+                }
+
+                assert(WandFailed + AandFailed == commands.size() * 2);
+            }
+        },
+
+        { "testInvalidChoice", []() {
+                const std::string filename = "test_lib_log.txt";
+                std::remove(filename.c_str());
+
+                std::istringstream inputStream(std::to_string(static_cast<Choice>('Y')));
+                std::cin.rdbuf(inputStream.rdbuf());
+
+                app = std::make_unique<MultithreadAppManager>(filename);
+                app->run();
+
+                std::ifstream logFile(filename);
+                std::string line;
+
+                bool found = false;
+                while (std::getline(logFile, line)) {
+                    if (line.find("Player::handleChoice | selected something unclear...") != std::string::npos) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                assert(found);
+            }
+        },
+
+        { "testAllPlayerLogsSMALL", []() {
+                const std::string filename = "test_lib_log.txt";
+                std::remove(filename.c_str());
+
+                std::string commands = "WASD";
+
+                std::istringstream inputStream(
+                    std::to_string(Choice::SETTINGS) + '\n' + std::to_string(Difficulty::FUNNY) + commands);
+                std::cin.rdbuf(inputStream.rdbuf());
+
+                app = std::make_unique<MultithreadAppManager>(filename);
+                app->run();
+
+                size_t W, A, S, D, handleChoice;
+                bool readme, settings, printBeforePlay;
+
+                W = A = S = D = handleChoice = 0;
+                readme = settings = printBeforePlay = false;
+
+                std::ifstream logFile(filename);
+                std::string line;
+                while (std::getline(logFile, line)) {
+                    if (line.find("Player::readme | received instructions.") != std::string::npos) readme = true;
+                    if (line.find("Player::handleChoice | data = 1") != std::string::npos) ++handleChoice;
+                    if (line.find("Player::handleChoice | entered settings.") != std::string::npos) ++handleChoice;
+                    if (line.find("Player::settings | selected FUNNY difficulty.") != std::string::npos) settings = true;
+                    if (line.find("Player::handleChoice | data = 0") != std::string::npos) ++handleChoice;
+                    if (line.find("Player::handleChoice | decided to play!") != std::string::npos) ++handleChoice;
+                    if (line.find("Player::printBeforePlay | received information before starting.") != std::string::npos) printBeforePlay = true;
+                    if (line.find("Player::processMove | data = W") != std::string::npos) ++W;
+                    if (line.find("Player::processMove | failed to move up.") != std::string::npos) ++W;
+                    if (line.find("Player::processMove | data = A") != std::string::npos) ++A;
+                    if (line.find("Player::processMove | failed to move left.") != std::string::npos) ++A;
+                    if (line.find("Player::processMove | data = S") != std::string::npos) ++S;
+                    if (line.find("Player::processMove | failed to move down.") != std::string::npos) ++S;
+                    if (line.find("Player::processMove | data = D") != std::string::npos) ++D;
+                    if (line.find("Player::processMove | moving right. New coordinates:") != std::string::npos) ++D;
+                }
+
+                assert(W == 2 && A == 2 && S == 2 && D == 2 && 
+                readme && settings && printBeforePlay && handleChoice == 4);
+            }
+        },
+
+        { "testAllPlayerLogsBIG", []() {
+                const std::string filename = "test_lib_log.txt";
+                std::remove(filename.c_str());
+
+                std::string commands;
+                const size_t commandSize = 13331;
+                std::random_device rd;
+                std::mt19937 gen(rd());
+                std::uniform_int_distribution<> dis(0, 3);
+
+                for (size_t i = 0; i != commandSize; ++i) {
+                    switch (dis(gen)) {
+                        case 0: commands += 'W'; break;
+                        case 1: commands += 'A'; break;
+                        case 2: commands += 'S'; break;
+                        case 3: commands += 'D'; break;
+                    }
+                }
+
+                std::istringstream inputStream(
+                    std::to_string(Choice::SETTINGS) + '\n' + std::to_string(Difficulty::EASY) + commands);
+                std::cin.rdbuf(inputStream.rdbuf());
+
+                app = std::make_unique<MultithreadAppManager>(filename);
+                app->run();
+
+                size_t W, A, S, D, handleChoice;
+                bool readme, settings, printBeforePlay;
+
+                W = A = S = D = handleChoice = 0;
+                readme = settings = printBeforePlay = false;
+
+                std::ifstream logFile(filename);
+                std::string line;
+                bool finished = false;
+                while (std::getline(logFile, line)) {
+                    if (line.find("Player::readme | received instructions.") != std::string::npos) readme = true;
+                    if (line.find("Player::handleChoice | data = 1") != std::string::npos) ++handleChoice;
+                    if (line.find("Player::handleChoice | entered settings.") != std::string::npos) ++handleChoice;
+                    if (line.find("Player::settings | selected EASY difficulty.") != std::string::npos) settings = true;
+                    if (line.find("Player::handleChoice | data = 0") != std::string::npos) ++handleChoice;
+                    if (line.find("Player::handleChoice | decided to play!") != std::string::npos) ++handleChoice;
+                    if (line.find("Player::printBeforePlay | received information before starting.") != std::string::npos) printBeforePlay = true;
+                    if (line.find("Player::processMove | data = W") != std::string::npos) ++W;
+                    if (line.find("Player::processMove | failed to move up.") != std::string::npos) ++W;
+                    if (line.find("Player::processMove | moving up. New coordinates:") != std::string::npos) ++W;
+                    if (line.find("Player::processMove | data = A") != std::string::npos) ++A;
+                    if (line.find("Player::processMove | failed to move left.") != std::string::npos) ++A;
+                    if (line.find("Player::processMove | moving left. New coordinates:") != std::string::npos) ++A;
+                    if (line.find("Player::processMove | data = S") != std::string::npos) ++S;
+                    if (line.find("Player::processMove | failed to move down.") != std::string::npos) ++S;
+                    if (line.find("Player::processMove | moving down. New coordinates:") != std::string::npos) ++S;
+                    if (line.find("Player::processMove | data = D") != std::string::npos) ++D;
+                    if (line.find("Player::processMove | moving right. New coordinates:") != std::string::npos) ++D;
+                    if (line.find("Player::processMove | failed to move right.") != std::string::npos) ++D;
+                    if (line.find("Player::play | finished the game. Time =") != std::string::npos) {
+                        finished = true;
+                        break;
+                    }
+                }
+
+                assert((W + A + S + D == commands.size() * 2 && 
+                        readme && settings && printBeforePlay && handleChoice == 4) ||
+                        (readme && settings && printBeforePlay && finished && handleChoice == 4)
+                );
             }
         }
     };
@@ -269,7 +451,8 @@ int main() {
     runTests(onlyLibrary);
     runTests(multithreadGameWithLib);
 
-    std::cout << "Total: all tests passed!\n";
+    system("clear");
+    std::cout << "Total: all tests passed :)!\n";
 
     return 0;
 }

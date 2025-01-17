@@ -90,8 +90,14 @@ void Player::play() {
             break;
         }
 
+        if (std::cin.eof()) break;
+
         std::cin >> move;
-        processMove(move);
+        
+        if (!std::cin.fail()) processMove(move);
+        else break;
+
+        if (std::cin.eof()) break;
     }
 }
 
