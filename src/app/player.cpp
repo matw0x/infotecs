@@ -1,8 +1,5 @@
 #include "player.h"
 #include "manager.h"
-#include <numeric>
-#include <mutex>
-#include <condition_variable>
 
 void Player::processMove(char move) {
     app->writeLog("Player::processMove | data = " + std::string(1, move));
@@ -59,7 +56,7 @@ void Player::processMove(char move) {
     }
 }
 
-Player::Player(GameField* gameField) : position_(GAME_BEGIN), gameField_(gameField) {}
+Player::Player(GameField* gameField) : gameField_(gameField), position_(GAME_BEGIN) {}
 
 void Player::printBeforePlay() const {
     app->writeLog("Player::printBeforePlay | received information before starting.");
@@ -98,6 +95,43 @@ void Player::play() {
     }
 }
 
+int ROWS = 15, COLUMNS = 45;
+Position GAME_BEGIN = { ROWS / 2, 0 }, GAME_END = { ROWS / 2, COLUMNS - 1 };
+
+void Player::settings() {
+    short choice;
+    std::cout << "Select difficulty:\n"
+              << "[0] Easy\n"
+              << "[1] Medium\n"
+              << "[2] Hard\n"
+              << "[3] Funny\n";
+    std::cin >> choice;
+
+    switch (choice) {
+        case Difficulty::EASY:
+            app->writeLog("Player::settings | selected EASY difficulty.");
+            ROWS = 9, COLUMNS = 25;
+            break;
+        case Difficulty::MEDIUM:
+            app->writeLog("Player::settings | selected MEDIUM difficulty.");
+            ROWS = 12, COLUMNS = 30;
+            break;
+        case Difficulty::FUNNY:
+            app->writeLog("Player::settings | selected FUNNY difficulty.");
+            ROWS = 5, COLUMNS = 50;
+            break;
+        case Difficulty::HARD:
+        default:
+            app->writeLog("Player::settings | selected HARD difficulty.");
+            break;
+    }
+
+    GAME_BEGIN = { ROWS / 2, 0 }, GAME_END = { ROWS / 2, COLUMNS - 1 };
+    position_ = GAME_BEGIN;
+    gameField_->recalculateField();
+    handleChoice(Choice::PLAY);
+}
+
 void Player::readme() const {
     app->writeLog("Player::readme | received instructions.");
     std::cout << "Welcome in a simple game! Before starting:\n"
@@ -116,7 +150,7 @@ void Player::handleChoice(short choice) {
             break;
         case SETTINGS:
             app->writeLog("Player::handleChoice | entered settings.");
-            std::cout << "SETTINGS IN DEVELOPMENT\n";
+            settings();
             break;
         default:
             app->writeLog("Player::handleChoice | selected something unclear...", LogLevel::ERROR);

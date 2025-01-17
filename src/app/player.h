@@ -7,18 +7,21 @@
 #include <functional> // лямбда-функции в связке с коллбеками
 #include "position.h"
 #include "game.h"
+#include <mutex>
 
 class Player {
 private:
-    Position position_;
     GameField* gameField_;
+    Position position_;
     std::chrono::duration<double> gameDuration_;
+    std::mutex playerMutex_;
 
     void processMove(char move);
     void play();
     void printBeforePlay() const;
     void readme() const;
     void handleChoice(short choice);
+    void settings();
 
 public:
     Player(GameField* gameField);

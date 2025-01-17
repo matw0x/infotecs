@@ -8,11 +8,7 @@ struct Position {
     }
 };
 
-const int ROWS = 15;
-const int COLUMNS = 45;
-
-const Position GAME_BEGIN = { ROWS / 2, 0 };
-const Position GAME_END = { ROWS / 2, COLUMNS - 1 };
+extern int ROWS, COLUMNS;
 
 #define WALL_CORNER '+'
 #define WALL_HORIZONTAL '-'
@@ -23,10 +19,15 @@ const Position GAME_END = { ROWS / 2, COLUMNS - 1 };
 
 const int DIRECTION_SIZE = 4;
 
-const Position UP_POS = { -1, 0 };
-const Position DOWN_POS = { 1, 0 };
-const Position LEFT_POS = { 0, -1 };
-const Position RIGHT_POS = { 0, 1 };
+extern int ROWS, COLUMNS;
+extern Position GAME_BEGIN, GAME_END;
+
+const Position UP_POS = { -1, 0 }, 
+               DOWN_POS = { 1, 0 }, 
+               LEFT_POS = { 0, -1 }, 
+               RIGHT_POS = { 0, 1 };
+               
 
 enum Choice { PLAY, SETTINGS };
 enum Direction { UP, DOWN, LEFT, RIGHT };
+enum Difficulty { EASY, MEDIUM, HARD, FUNNY };

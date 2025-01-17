@@ -1,7 +1,7 @@
 #include "game.h"
 
 bool GameField::isPathExists(Position currentPos, std::queue<Position>& path, std::vector<std::vector<bool>>& visited) {
-    if (currentPos == GAME_END) return true;
+    if (currentPos == GAME_END_) return true;
 
     const Position directions[DIRECTION_SIZE] = { RIGHT_POS, UP_POS, LEFT_POS, DOWN_POS };
 
@@ -9,7 +9,7 @@ bool GameField::isPathExists(Position currentPos, std::queue<Position>& path, st
         Position next = { currentPos.x + directions[i].x, currentPos.y + directions[i].y };
 
         auto isInBound = [&]() -> bool {
-            return next.x >= 0 && next.x < ROWS && next.y >= 0 && next.y < COLUMNS; 
+            return next.x >= 0 && next.x < ROWS_ && next.y >= 0 && next.y < COLUMNS_; 
         };
 
         auto isFree = [&]() -> bool {
@@ -32,23 +32,23 @@ bool GameField::isPathExists(Position currentPos, std::queue<Position>& path, st
 
 void GameField::generateBlocks() {
     srand(static_cast<unsigned>(time(nullptr)));
-    for (size_t i = 1; i != ROWS - 1; ++i) {
-        for (size_t j = 1; j != COLUMNS - 1; ++j) {
+    for (int i = 1; i != ROWS_ - 1; ++i) {
+        for (int j = 1; j != COLUMNS_ - 1; ++j) {
             field_[i][j] = BLOCK;
         }
     }
 
-    auto isInBounds = [&](const int& x, const int& y) -> bool {
-        return x > 0 && x < ROWS - 1 && y > 0 && y < COLUMNS - 1;
+    auto isInBounds = [&](int x, int y) -> bool {
+        return x > 0 && x < ROWS_ - 1 && y > 0 && y < COLUMNS_ - 1;
     };
 
     std::vector<Position> walls;
-    int startX = 1 + rand() % (ROWS - 2);
-    int startY = 1 + rand() % (COLUMNS - 2);
+    int startX = 1 + rand() % (ROWS_ - 2);
+    int startY = 1 + rand() % (COLUMNS_ - 2);
     field_[startX][startY] = NOTHING;
     
     // соседи
-    auto addWalls = [&](const int& x, const int& y) -> void {
+    auto addWalls = [&](int x, int y) -> void {
         if (isInBounds(x - 1, y) && field_[x - 1][y] == BLOCK) walls.push_back({x - 1, y});
         if (isInBounds(x + 1, y) && field_[x + 1][y] == BLOCK) walls.push_back({x + 1, y});
         if (isInBounds(x, y - 1) && field_[x][y - 1] == BLOCK) walls.push_back({x, y - 1});
@@ -80,8 +80,8 @@ void GameField::generateBlocks() {
 
     // MAYBE THIS WILL DELETE.. IDK
     for (int i = 0; i != 3;) {
-        int deadEndX = 1 + rand() % (ROWS - 2);
-        int deadEndY = 1 + rand() % (COLUMNS - 2);
+        int deadEndX = 1 + rand() % (ROWS_ - 2);
+        int deadEndY = 1 + rand() % (COLUMNS_ - 2);
 
         if (field_[deadEndX][deadEndY] == NOTHING) {
             ++i;
@@ -103,50 +103,72 @@ void GameField::generateBlocks() {
         }
     }
 
-    if (isInBounds(GAME_BEGIN.x, GAME_BEGIN.y + 1)) field_[GAME_BEGIN.x][GAME_BEGIN.y + 1] = NOTHING;
-    if (isInBounds(GAME_END.x, GAME_END.y - 1)) field_[GAME_END.x][GAME_END.y - 1] = NOTHING;
+    if (isInBounds(GAME_BEGIN_.x, GAME_BEGIN_.y + 1)) field_[GAME_BEGIN_.x][GAME_BEGIN_.y + 1] = NOTHING;
+    if (isInBounds(GAME_END_.x, GAME_END_.y - 1)) field_[GAME_END_.x][GAME_END_.y - 1] = NOTHING;
 }
 
-GameField::GameField() {
-    std::vector<std::vector<char>> field(ROWS, std::vector<char>(COLUMNS));
-    for (int i = 0; i != ROWS; ++i) {
-        for (int j = 0; j != COLUMNS; ++j) {
-            if (i == 0 || i == ROWS - 1) {
-                if (j == 0 || j == COLUMNS - 1) field[i][j] = WALL_CORNER;
+void GameField::recalculateField() {
+    if (ROWS_ != ROWS && COLUMNS_ != COLUMNS) {
+        ROWS_ = ROWS;
+        COLUMNS_ = COLUMNS;
+        GAME_BEGIN_ = GAME_BEGIN;
+        GAME_END_ = GAME_END;
+
+        calculateGameField();
+    }
+}
+
+void GameField::calculateGameField() {
+    std::vector<std::vector<char>> field(ROWS_, std::vector<char>(COLUMNS_));
+    for (int i = 0; i != ROWS_; ++i) {
+        for (int j = 0; j != COLUMNS_; ++j) {
+            if (i == 0 || i == ROWS_ - 1) {
+                if (j == 0 || j == COLUMNS_ - 1) field[i][j] = WALL_CORNER;
                 else field[i][j] = WALL_HORIZONTAL;
             } else {
-                if (j == 0 || j == COLUMNS - 1) field[i][j] = WALL_VERTICAL;
+                if (j == 0 || j == COLUMNS_ - 1) field[i][j] = WALL_VERTICAL;
                 else field[i][j] = NOTHING;
             }
         }
     }
 
-    field[GAME_BEGIN.x][GAME_BEGIN.y] = PLAYER;
-    field[GAME_END.x][GAME_END.y] = NOTHING;
+    field[GAME_BEGIN_.x][GAME_BEGIN_.y] = PLAYER;
+    field[GAME_END_.x][GAME_END_.y] = NOTHING;
 
     field_ = std::move(field);
 
     int countGen = 1;
     while (true) {
         std::queue<Position> path;
-        path.push(GAME_BEGIN);
+        path.push(GAME_BEGIN_);
 
-        std::vector<std::vector<bool>> visited(ROWS, std::vector<bool>(COLUMNS, false));
-        visited[GAME_BEGIN.x][GAME_BEGIN.y] = true;
+        std::vector<std::vector<bool>> visited(ROWS_, std::vector<bool>(COLUMNS_, false));
+        visited[GAME_BEGIN_.x][GAME_BEGIN_.y] = true;
 
         generateBlocks();
 
-        if (isPathExists(GAME_BEGIN, path, visited)) break;
+        if (isPathExists(GAME_BEGIN_, path, visited)) break;
         std::cout << "GENERATING #" << countGen++ << "...\n";
     }
+
+    // std::cout << GAME_BEGIN_.x << "; " << GAME_BEGIN_.y << std::endl;
+    // std::cout << GAME_BEGIN.x << "; " << GAME_BEGIN.y << std::endl;
+    // std::cout << "--------------------------------------------\n";
+    // std::cout << GAME_END_.x << "; " << GAME_END_.y << std::endl;
+    // std::cout << GAME_END.x << "; " << GAME_END.y << std::endl;
+}
+
+GameField::GameField(const int ROWS, const int COLUMNS) : 
+    ROWS_(ROWS), COLUMNS_(COLUMNS), GAME_BEGIN_({ ROWS / 2, 0 }), GAME_END_({ ROWS / 2, COLUMNS - 1 }) {
+    calculateGameField();
 }
 
 void GameField::display() const {
-    for (int i = 0; i != ROWS; ++i) {
-        for (int j = 0; j != COLUMNS; ++j) {
+    for (int i = 0; i != ROWS_; ++i) {
+        for (int j = 0; j != COLUMNS_; ++j) {
             std::cout << field_[i][j] << " ";
 
-            if (i == GAME_END.x && j == GAME_END.y) std::cout << "<- FINISH";
+            if (i == GAME_END_.x && j == GAME_END_.y) std::cout << "<- FINISH";
         }
 
         std::cout << "\n";
@@ -157,7 +179,7 @@ void GameField::clearPlayerPosition(Position position) {
     field_[position.x][position.y] = NOTHING;
 }
 
-void GameField::clearScreen() {
+void GameField::clearScreen() const {
     auto res = system("clear");
     if (res) return;
 }
