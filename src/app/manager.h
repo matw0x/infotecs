@@ -16,6 +16,8 @@ private:
     std::unique_ptr<Player> player_;
     std::unique_ptr<Logger> logger_;
 
+    std::thread mazeGenerateThread_, gameThread_, logThread_;
+
     std::atomic<bool> logThreadRunning_, mazeGeneratedThread_;
     std::queue<std::pair<std::string, LogLevel>> logQueue_;
     std::condition_variable logCondVar_;
@@ -32,8 +34,10 @@ public:
 
     void writeLog(const std::string& message, LogLevel logLevel = INFO);
     void run();
+    
     void stopMazeGenerated(); // для генерации лабиринта
     bool isMazeGenerated() const;
+    void resetMazeGenThread();
 };
 
 extern std::unique_ptr<MultithreadAppManager> app;

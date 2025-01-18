@@ -2,7 +2,7 @@
 #include "../app/manager.h"
 
 bool GameField::isPathExists(Position currentPos, std::queue<Position>& path, std::vector<std::vector<bool>>& visited) {
-    if (currentPos == GAME_END_) return true;
+    if (currentPos == GAME_END_ || app->isMazeGenerated()) return true;
 
     const Position directions[DIRECTION_SIZE] = { RIGHT_POS, UP_POS, LEFT_POS, DOWN_POS };
 
@@ -79,7 +79,8 @@ void GameField::generateBlocks() {
         }
     }
 
-    for (int i = 0; i != 10;) {
+    for (int i = 0; i != 11;) {
+        if (app->isMazeGenerated()) return;
         int deadEndX = 1 + rand() % (ROWS_ - 2);
         int deadEndY = 1 + rand() % (COLUMNS_ - 2);
 
@@ -114,7 +115,7 @@ void GameField::recalculateField() {
         GAME_BEGIN_ = GAME_BEGIN;
         GAME_END_ = GAME_END;
 
-        calculateGameField();
+        app->resetMazeGenThread();
     }
 }
 
@@ -147,7 +148,7 @@ void GameField::calculateGameField() {
 
         generateBlocks();
 
-        if (isPathExists(GAME_BEGIN_, path, visited)) break;
+        if (isPathExists(GAME_BEGIN_, path, visited) || app->isMazeGenerated()) break;
         ++countGen;
     }
 
