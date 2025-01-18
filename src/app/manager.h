@@ -16,13 +16,15 @@ private:
     std::unique_ptr<Player> player_;
     std::unique_ptr<Logger> logger_;
 
-    std::atomic<bool> logThreadRunning_;
+    std::atomic<bool> logThreadRunning_, mazeGeneratedThread_;
     std::queue<std::pair<std::string, LogLevel>> logQueue_;
     std::condition_variable logCondVar_;
     std::mutex logQueueMutex_;
 
     void runGameMulti() const;
     void logMulti();
+    void stopLogging();
+    void runMazeGenMulti() const;
 
 public:
     MultithreadAppManager(const std::string& logFilename = "game_log.txt", 
@@ -30,7 +32,8 @@ public:
 
     void writeLog(const std::string& message, LogLevel logLevel = INFO);
     void run();
-    void stopLogging();
+    void stopMazeGenerated(); // для генерации лабиринта
+    bool isMazeGenerated() const;
 };
 
 extern std::unique_ptr<MultithreadAppManager> app;

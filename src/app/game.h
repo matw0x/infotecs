@@ -17,11 +17,11 @@ private:
 
     bool isPathExists(Position currentPos, std::queue<Position>& path, std::vector<std::vector<bool>>& visited);
     void generateBlocks();
-    void calculateGameField();
 
 public:
     GameField(const int ROWS, const int COLUMNS);
 
+    void calculateGameField();
     void display() const;
     void clearScreen() const;
     bool isWalkable(int x, int y) const;

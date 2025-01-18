@@ -70,8 +70,21 @@ void Player::printBeforePlay() const {
     std::cout << "These messages will disappear!\n";
 }
 
+void Player::printWhileMazeGenerating() const {
+    const std::string spinner = "/-\\|";
+    int idx = 0;
+
+    while (!app->isMazeGenerated()) {
+        std::cout << "\rGenerating maze, please wait..." << spinner[idx++ % 4] << std::flush;
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+    }
+
+    std::cout << std::endl << "Maze is ready! You can start the game now." << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+}
+
 void Player::play() {
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    printWhileMazeGenerating();
 
     auto begin = std::chrono::high_resolution_clock::now();
     char move;

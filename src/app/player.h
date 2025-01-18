@@ -21,6 +21,7 @@ private:
     void readme() const;
     void handleChoice(short choice);
     void settings();
+    void printWhileMazeGenerating() const;
 
 public:
     Player(GameField* gameField);

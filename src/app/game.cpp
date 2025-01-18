@@ -1,4 +1,5 @@
 #include "game.h"
+#include "../app/manager.h"
 
 bool GameField::isPathExists(Position currentPos, std::queue<Position>& path, std::vector<std::vector<bool>>& visited) {
     if (currentPos == GAME_END_) return true;
@@ -78,8 +79,7 @@ void GameField::generateBlocks() {
         }
     }
 
-    // MAYBE THIS WILL DELETE.. IDK
-    for (int i = 0; i != 3;) {
+    for (int i = 0; i != 10;) {
         int deadEndX = 1 + rand() % (ROWS_ - 2);
         int deadEndY = 1 + rand() % (COLUMNS_ - 2);
 
@@ -148,24 +148,28 @@ void GameField::calculateGameField() {
         generateBlocks();
 
         if (isPathExists(GAME_BEGIN_, path, visited)) break;
-        std::cout << "GENERATING #" << countGen++ << "...\n";
+        ++countGen;
     }
+
+    app->stopMazeGenerated();
+    app->writeLog("GameField::calculateGameField | " + std::to_string(countGen) + " attempts required for maze generation.");
 }
 
-GameField::GameField(const int ROWS, const int COLUMNS) : 
-    ROWS_(ROWS), COLUMNS_(COLUMNS), GAME_BEGIN_({ ROWS / 2, 0 }), GAME_END_({ ROWS / 2, COLUMNS - 1 }) {
-    calculateGameField();
-}
+GameField::GameField(const int ROWS, const int COLUMNS): 
+    ROWS_(ROWS), 
+    COLUMNS_(COLUMNS), 
+    GAME_BEGIN_({ ROWS / 2, 0 }), 
+    GAME_END_({ ROWS / 2, COLUMNS - 1 }) {}
 
 void GameField::display() const {
     for (int i = 0; i != ROWS_; ++i) {
         for (int j = 0; j != COLUMNS_; ++j) {
-            std::cout << field_[i][j] << " ";
+            std::cout << field_[i][j] << ' ';
 
             if (i == GAME_END_.x && j == GAME_END_.y) std::cout << "<- FINISH";
         }
 
-        std::cout << "\n";
+        std::cout << std::endl;
     }
 }
 
@@ -174,7 +178,7 @@ void GameField::clearPlayerPosition(Position position) {
 }
 
 void GameField::clearScreen() const {
-    system("clear");
+    std::cout << "\033[2J\033[1;1H";
 }
 
 bool GameField::isWalkable(int x, int y) const {

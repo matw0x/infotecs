@@ -6,16 +6,24 @@ MultithreadAppManager::MultithreadAppManager
     gameField_(std::make_unique<GameField>(ROWS, COLUMNS)),
     player_(std::make_unique<Player>(gameField_.get())),
     logger_(std::make_unique<Logger>(logFilename, logLevel, logType)),
-    logThreadRunning_(true)
+    logThreadRunning_(true), mazeGeneratedThread_(false)
     {}
 
 void MultithreadAppManager::run() {
+    std::thread mazeGenerateThread([this]() { runMazeGenMulti(); });
     std::thread gameThread([this]() { runGameMulti(); });
     std::thread logThread([this]() { logMulti(); });
 
     gameThread.join();
     stopLogging();
     logThread.join();
+    mazeGenerateThread.join();
+}
+
+void MultithreadAppManager::stopMazeGenerated() { mazeGeneratedThread_.store(true); }
+
+void MultithreadAppManager::runMazeGenMulti() const {
+    gameField_->calculateGameField();
 }
 
 void MultithreadAppManager::runGameMulti() const {
@@ -46,3 +54,5 @@ void MultithreadAppManager::stopLogging() {
     logThreadRunning_.store(false);
     logCondVar_.notify_all();
 }
+
+bool MultithreadAppManager::isMazeGenerated() const { return mazeGeneratedThread_.load(); }
