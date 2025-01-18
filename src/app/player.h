@@ -1,28 +1,28 @@
 #pragma once
 
-#include <string>
+#include <chrono>
 #include <iostream>
-#include <thread> //  for sleep_for
-#include <chrono> // for seconds
-#include "position.h"
+#include <string>
+#include <thread>
+
 #include "game.h"
-#include <mutex>
+#include "position.h"
 
 class Player {
-private:
-    GameField* gameField_;
-    Position position_;
-    std::chrono::duration<double> gameDuration_;
+   private:
+    GameField*                    gameField_;     // игровое поле
+    Position                      position_;      // текущая позиция игрока
+    std::chrono::duration<double> gameDuration_;  // время прохождения карты
 
-    void processMove(char move);
-    void play();
-    void printBeforePlay() const;
-    void readme() const;
-    void handleChoice(short choice);
-    void printWhileMazeGenerating() const;
+    void processMove(char move);      // обработка движения игрока
+    void play();                      // старт
+    void printBeforePlay() const;     // вывод предыгровой информации
+    void readme() const;              // инструкция, как играть
+    void handleChoice(short choice);  // обработка выбора игрока
+    void printWhileMazeGenerating() const;  // вывод информации с ожиданием, пока поток генерации активен
 
-public:
+   public:
     Player(GameField* gameField);
 
-    void letsgo();
+    void letsgo();  // публичный старт игры
 };

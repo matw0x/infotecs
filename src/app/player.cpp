@@ -1,17 +1,20 @@
 #include "player.h"
+
 #include "manager.h"
 
 void Player::processMove(char move) {
+    // обрабатываем движение: смотрим, можно ли ходить игроку
     app->writeLog("Player::processMove | data = " + std::string(1, move));
-    Position newPosition = position_;
-    bool moveSuccessful = false;
+    Position newPosition    = position_;
+    bool     moveSuccessful = false;
 
     switch (tolower(move)) {
         case 'w':
             if (newPosition.x - 1 >= 0 && gameField_->isWalkable(newPosition.x - 1, newPosition.y)) {
                 --newPosition.x;
                 moveSuccessful = true;
-                app->writeLog("Player::processMove | moving up. New coordinates: " + std::to_string(newPosition.y) + ';' + std::to_string(newPosition.x));
+                app->writeLog("Player::processMove | moving up. New coordinates: " + std::to_string(newPosition.y) +
+                              ';' + std::to_string(newPosition.x));
             } else {
                 app->writeLog("Player::processMove | failed to move up.");
             }
@@ -20,7 +23,8 @@ void Player::processMove(char move) {
             if (newPosition.x + 1 < ROWS && gameField_->isWalkable(newPosition.x + 1, newPosition.y)) {
                 ++newPosition.x;
                 moveSuccessful = true;
-                app->writeLog("Player::processMove | moving down. New coordinates: " + std::to_string(newPosition.y) + ';' + std::to_string(newPosition.x));
+                app->writeLog("Player::processMove | moving down. New coordinates: " + std::to_string(newPosition.y) +
+                              ';' + std::to_string(newPosition.x));
             } else {
                 app->writeLog("Player::processMove | failed to move down.");
             }
@@ -29,7 +33,8 @@ void Player::processMove(char move) {
             if (newPosition.y - 1 >= 0 && gameField_->isWalkable(newPosition.x, newPosition.y - 1)) {
                 --newPosition.y;
                 moveSuccessful = true;
-                app->writeLog("Player::processMove | moving left. New coordinates: " + std::to_string(newPosition.y) + ';' + std::to_string(newPosition.x));
+                app->writeLog("Player::processMove | moving left. New coordinates: " + std::to_string(newPosition.y) +
+                              ';' + std::to_string(newPosition.x));
             } else {
                 app->writeLog("Player::processMove | failed to move left.");
             }
@@ -38,7 +43,8 @@ void Player::processMove(char move) {
             if (newPosition.y + 1 < COLUMNS && gameField_->isWalkable(newPosition.x, newPosition.y + 1)) {
                 ++newPosition.y;
                 moveSuccessful = true;
-                app->writeLog("Player::processMove | moving right. New coordinates: " + std::to_string(newPosition.y) + ';' + std::to_string(newPosition.x));
+                app->writeLog("Player::processMove | moving right. New coordinates: " + std::to_string(newPosition.y) +
+                              ';' + std::to_string(newPosition.x));
             } else {
                 app->writeLog("Player::processMove | failed to move right.");
             }
@@ -49,6 +55,7 @@ void Player::processMove(char move) {
             return;
     }
 
+    // если игрок все же сходил, то меняем его позицию, но сначала очистив
     if (moveSuccessful) {
         gameField_->clearPlayerPosition(position_);
         position_ = newPosition;
@@ -62,19 +69,20 @@ void Player::printBeforePlay() const {
     app->writeLog("Player::printBeforePlay | received information before starting.");
     std::cout << "Nice choice!\n";
     std::cout << "Control keys:\n"
-            << "\tW - up\n"
-            << "\tA - left\n"
-            << "\tS - down\n"
-            << "\tD - right\n";
-    
+              << "\tW - up\n"
+              << "\tA - left\n"
+              << "\tS - down\n"
+              << "\tD - right\n";
+
     std::cout << "These messages will disappear!\n";
 }
 
 void Player::printWhileMazeGenerating() const {
+    // вывод крутящегося спиннера, чтобы пользователь не скучал, если поток генерации запаздывает
     const std::string spinner = "/-\\|";
-    int idx = 0;
+    int               idx     = 0;
 
-    while (!app->isMazeGenerated()) {
+    while (!app->isMazeGenerated()) {  // атомарная переменная в помощь
         std::cout << "\rGenerating maze, please wait..." << spinner[idx++ % 4] << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
     }
@@ -84,6 +92,10 @@ void Player::printWhileMazeGenerating() const {
 }
 
 void Player::play() {
+    // проверяем, достиг ли игрок финиша
+    // высчитываем его время прохождения
+    // также обрабатываем введенные клавиши необычным образом
+    // это сделано ради работы тестов
     printWhileMazeGenerating();
 
     auto begin = std::chrono::high_resolution_clock::now();
@@ -97,18 +109,20 @@ void Player::play() {
             std::cout << "Congratulations! You've reached the finish!\n";
             gameDuration_ = end - begin;
             std::cout << "Your time: " << gameDuration_.count() << " seconds!\n";
-            
-            app->writeLog("Player::play | finished the game. Time = " + 
-                            std::to_string(gameDuration_.count()) + " seconds.");
+
+            app->writeLog("Player::play | finished the game. Time = " + std::to_string(gameDuration_.count()) +
+                          " seconds.");
             break;
         }
 
         if (std::cin.eof()) break;
 
         std::cin >> move;
-        
-        if (!std::cin.fail()) processMove(move);
-        else break;
+
+        if (!std::cin.fail())
+            processMove(move);
+        else
+            break;
 
         if (std::cin.eof()) break;
     }
@@ -117,13 +131,13 @@ void Player::play() {
 void Player::readme() const {
     app->writeLog("Player::readme | received instructions.");
     std::cout << "Welcome in a simple game! Before starting:\n"
-                << "[0] - play\n";
-                //<< "[1] - settings\n"; 
+              << "[0] - play\n";
+    //<< "[1] - settings\n";
 }
 
 void Player::handleChoice(short choice) {
+    // тут обрабатываем выбор игрока
     app->writeLog("Player::handleChoice | data = " + std::to_string(choice));
-
     switch (choice) {
         case PLAY:
             app->writeLog("Player::handleChoice | decided to play!");
@@ -138,6 +152,7 @@ void Player::handleChoice(short choice) {
 }
 
 void Player::letsgo() {
+    // поехали!
     readme();
     short choice;
     std::cin >> choice;
