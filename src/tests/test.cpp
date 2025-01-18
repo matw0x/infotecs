@@ -438,6 +438,48 @@ int main() {
                         printBeforePlay && finished && handleChoice == 2)
                 );
             }
+        },
+
+        { "testThreadCompleted", []() {
+                const std::string filename = "test_lib_log.txt";
+                std::remove(filename.c_str());
+
+                std::string commands(100, 'w');
+                std::istringstream inputStream(
+                    std::to_string(Choice::PLAY) + commands);
+                std::cin.rdbuf(inputStream.rdbuf());
+
+                app = std::make_unique<MultithreadAppManager>(filename);
+                app->run();
+
+                size_t mazeGen = 0, game = 0, log = 0;
+
+                std::ifstream logFile(filename);
+                std::string line;
+                while (std::getline(logFile, line)) {
+                    if (line.find("APP | START THREAD runMazeGenMulti") != std::string::npos) ++mazeGen;
+                    if (line.find("APP | END THREAD runMazeGenMulti") != std::string::npos) ++mazeGen;
+
+                    if (line.find("APP | START THREAD runGameMulti") != std::string::npos) ++game;
+                    if (line.find("APP | END THREAD runGameMulti") != std::string::npos) ++game;
+
+                    if (line.find("APP | START THREAD logMulti") != std::string::npos) ++log;
+                    if (line.find("APP | END THREAD logMulti") != std::string::npos) ++log;
+                }
+
+                assert(mazeGen == 2 && game == 2 && log == 2);
+            }
+        },
+
+        { "testEmptyParams", []() {
+                const std::string filename = "test_lib_log.txt";
+                std::remove(filename.c_str());
+
+                app = std::make_unique<MultithreadAppManager>("");
+                app->run();
+
+                assert(true);
+            }
         }
     };
 

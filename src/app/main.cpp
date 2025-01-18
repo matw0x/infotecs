@@ -5,7 +5,7 @@ LogLevel convertToLogLevel(const std::string& logLevelString) {
     if (logLevelString == "INFO") return INFO;
     else if (logLevelString == "WARNING") return WARNING;
     else if (logLevelString == "ERROR") return ERROR;
-    else return static_cast<LogLevel>(-1);
+    else throw std::invalid_argument("Invalid log level: " + logLevelString);
 }
 
 std::unique_ptr<MultithreadAppManager> app = nullptr;
@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     try {
         app = std::make_unique<MultithreadAppManager>(argv[1], convertToLogLevel(argv[2]));
         app->run();
-    } catch (const std::invalid_argument& e) {
+    } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
         return 1;
     }

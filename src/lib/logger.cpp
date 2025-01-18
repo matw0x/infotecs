@@ -1,6 +1,7 @@
 #include "logger.h"
 #include <chrono>
 #include <sstream>
+#include <iostream>
 #include <iomanip>
 #include <stdexcept>
 #include <filesystem>
@@ -17,7 +18,7 @@ bool Logger::hasValidExtension() {
     return filePath.extension() == ".txt";
 }
 
-void Logger::validateFile() {
+void Logger::validateFile() {    
     if (!hasValidExtension()) throw std::runtime_error("Error: file has invalid extension!");
     if (!logFile_.is_open()) throw std::runtime_error("Error: opening file!");
 }
