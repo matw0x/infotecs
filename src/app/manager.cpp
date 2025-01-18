@@ -17,20 +17,26 @@ void MultithreadAppManager::run() {
     gameThread_.join();
     stopLogging();
     logThread_.join();
-    if (mazeGenerateThread_.joinable()) mazeGenerateThread_.join();
+    mazeGenerateThread_.join();
 }
 
 void MultithreadAppManager::stopMazeGenerated() { mazeGeneratedThread_.store(true); }
 
-void MultithreadAppManager::runMazeGenMulti() const {
+void MultithreadAppManager::runMazeGenMulti() {
+    app->writeLog("APP | START THREAD runMazeGenMulti");
     gameField_->calculateGameField();
+    app->writeLog("APP | END THREAD runMazeGenMulti");
+    stopMazeGenerated();
 }
 
 void MultithreadAppManager::runGameMulti() const {
+    app->writeLog("APP | START THREAD runGameMulti");
     player_->letsgo();
+    app->writeLog("APP | END THREAD runGameMulti");
 }
 
 void MultithreadAppManager::logMulti() {
+    app->writeLog("APP | START THREAD logMulti");
     while (logThreadRunning_.load() || !logQueue_.empty()) {
         std::unique_lock<std::mutex> lock(logQueueMutex_);
         
@@ -50,13 +56,8 @@ void MultithreadAppManager::writeLog(const std::string& message, LogLevel logLev
     logQueue_.push({message, logLevel});
 }
 
-void MultithreadAppManager::resetMazeGenThread() {
-    if (mazeGenerateThread_.joinable()) mazeGenerateThread_.join();
-    mazeGeneratedThread_.store(false);
-    mazeGenerateThread_ = std::thread([this](){ runMazeGenMulti(); });
-}
-
 void MultithreadAppManager::stopLogging() {
+    app->writeLog("APP | END THREAD logMulti");
     logThreadRunning_.store(false);
     logCondVar_.notify_all();
 }

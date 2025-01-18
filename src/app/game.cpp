@@ -2,7 +2,7 @@
 #include "../app/manager.h"
 
 bool GameField::isPathExists(Position currentPos, std::queue<Position>& path, std::vector<std::vector<bool>>& visited) {
-    if (currentPos == GAME_END_ || app->isMazeGenerated()) return true;
+    if (currentPos == GAME_END_) return true;
 
     const Position directions[DIRECTION_SIZE] = { RIGHT_POS, UP_POS, LEFT_POS, DOWN_POS };
 
@@ -79,8 +79,7 @@ void GameField::generateBlocks() {
         }
     }
 
-    for (int i = 0; i != 11;) {
-        if (app->isMazeGenerated()) return;
+    for (int i = 0; i != 15;) {
         int deadEndX = 1 + rand() % (ROWS_ - 2);
         int deadEndY = 1 + rand() % (COLUMNS_ - 2);
 
@@ -106,17 +105,6 @@ void GameField::generateBlocks() {
 
     if (isInBounds(GAME_BEGIN_.x, GAME_BEGIN_.y + 1)) field_[GAME_BEGIN_.x][GAME_BEGIN_.y + 1] = NOTHING;
     if (isInBounds(GAME_END_.x, GAME_END_.y - 1)) field_[GAME_END_.x][GAME_END_.y - 1] = NOTHING;
-}
-
-void GameField::recalculateField() {
-    if (ROWS_ != ROWS && COLUMNS_ != COLUMNS) {
-        ROWS_ = ROWS;
-        COLUMNS_ = COLUMNS;
-        GAME_BEGIN_ = GAME_BEGIN;
-        GAME_END_ = GAME_END;
-
-        app->resetMazeGenThread();
-    }
 }
 
 void GameField::calculateGameField() {
@@ -148,19 +136,18 @@ void GameField::calculateGameField() {
 
         generateBlocks();
 
-        if (isPathExists(GAME_BEGIN_, path, visited) || app->isMazeGenerated()) break;
+        if (isPathExists(GAME_BEGIN_, path, visited)) break;
         ++countGen;
     }
-
-    app->stopMazeGenerated();
+    
     app->writeLog("GameField::calculateGameField | " + std::to_string(countGen) + " attempts required for maze generation.");
 }
 
-GameField::GameField(const int ROWS, const int COLUMNS): 
-    ROWS_(ROWS), 
-    COLUMNS_(COLUMNS), 
-    GAME_BEGIN_({ ROWS / 2, 0 }), 
-    GAME_END_({ ROWS / 2, COLUMNS - 1 }) {}
+GameField::GameField(const int _ROWS, const int _COLUMNS): 
+    ROWS_(_ROWS), 
+    COLUMNS_(_COLUMNS), 
+    GAME_BEGIN_({ _ROWS / 2, 0 }), 
+    GAME_END_({ _ROWS / 2, _COLUMNS - 1 }) {}
 
 void GameField::display() const {
     for (int i = 0; i != ROWS_; ++i) {

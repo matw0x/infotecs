@@ -340,27 +340,23 @@ int main() {
                 std::remove(filename.c_str());
 
                 std::string commands = "WASD";
-
                 std::istringstream inputStream(
-                    std::to_string(Choice::SETTINGS) + '\n' + std::to_string(Difficulty::FUNNY) + commands);
+                    std::to_string(Choice::PLAY) + commands);
                 std::cin.rdbuf(inputStream.rdbuf());
 
                 app = std::make_unique<MultithreadAppManager>(filename);
                 app->run();
 
                 size_t W, A, S, D, handleChoice;
-                bool readme, settings, printBeforePlay;
+                bool readme, printBeforePlay;
 
                 W = A = S = D = handleChoice = 0;
-                readme = settings = printBeforePlay = false;
+                readme = printBeforePlay = false;
 
                 std::ifstream logFile(filename);
                 std::string line;
                 while (std::getline(logFile, line)) {
                     if (line.find("Player::readme | received instructions.") != std::string::npos) readme = true;
-                    if (line.find("Player::handleChoice | data = 1") != std::string::npos) ++handleChoice;
-                    if (line.find("Player::handleChoice | entered settings.") != std::string::npos) ++handleChoice;
-                    if (line.find("Player::settings | selected FUNNY difficulty.") != std::string::npos) settings = true;
                     if (line.find("Player::handleChoice | data = 0") != std::string::npos) ++handleChoice;
                     if (line.find("Player::handleChoice | decided to play!") != std::string::npos) ++handleChoice;
                     if (line.find("Player::printBeforePlay | received information before starting.") != std::string::npos) printBeforePlay = true;
@@ -375,16 +371,16 @@ int main() {
                 }
 
                 assert(W == 2 && A == 2 && S == 2 && D == 2 && 
-                readme && settings && printBeforePlay && handleChoice == 4);
+                readme && printBeforePlay && handleChoice == 2);
             }
         },
 
-        { "testAllPlayerLogsBIG", []() {
+        { "testAllPlayerLogsVeryBIG", []() {
                 const std::string filename = "test_lib_log.txt";
                 std::remove(filename.c_str());
 
                 std::string commands;
-                const size_t commandSize = 13331;
+                const size_t commandSize = 133331;
                 std::random_device rd;
                 std::mt19937 gen(rd());
                 std::uniform_int_distribution<> dis(0, 3);
@@ -399,26 +395,23 @@ int main() {
                 }
 
                 std::istringstream inputStream(
-                    std::to_string(Choice::SETTINGS) + '\n' + std::to_string(Difficulty::EASY) + commands);
+                std::to_string(Choice::PLAY) + commands);
                 std::cin.rdbuf(inputStream.rdbuf());
 
                 app = std::make_unique<MultithreadAppManager>(filename);
                 app->run();
 
                 size_t W, A, S, D, handleChoice;
-                bool readme, settings, printBeforePlay;
+                bool readme, printBeforePlay;
 
                 W = A = S = D = handleChoice = 0;
-                readme = settings = printBeforePlay = false;
+                readme = printBeforePlay = false;
 
                 std::ifstream logFile(filename);
                 std::string line;
                 bool finished = false;
                 while (std::getline(logFile, line)) {
                     if (line.find("Player::readme | received instructions.") != std::string::npos) readme = true;
-                    if (line.find("Player::handleChoice | data = 1") != std::string::npos) ++handleChoice;
-                    if (line.find("Player::handleChoice | entered settings.") != std::string::npos) ++handleChoice;
-                    if (line.find("Player::settings | selected EASY difficulty.") != std::string::npos) settings = true;
                     if (line.find("Player::handleChoice | data = 0") != std::string::npos) ++handleChoice;
                     if (line.find("Player::handleChoice | decided to play!") != std::string::npos) ++handleChoice;
                     if (line.find("Player::printBeforePlay | received information before starting.") != std::string::npos) printBeforePlay = true;
@@ -440,9 +433,9 @@ int main() {
                     }
                 }
 
-                assert((W + A + S + D == commands.size() * 2 && 
-                        readme && settings && printBeforePlay && handleChoice == 4) ||
-                        (readme && settings && printBeforePlay && finished && handleChoice == 4)
+                assert((W + A + S + D == commands.size() * 2 && readme 
+                        && printBeforePlay && handleChoice == 2) || (readme && 
+                        printBeforePlay && finished && handleChoice == 2)
                 );
             }
         }

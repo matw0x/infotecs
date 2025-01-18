@@ -114,48 +114,11 @@ void Player::play() {
     }
 }
 
-int ROWS = 15, COLUMNS = 45;
-Position GAME_BEGIN = { ROWS / 2, 0 }, GAME_END = { ROWS / 2, COLUMNS - 1 };
-
-void Player::settings() {
-    short choice;
-    std::cout << "Select difficulty:\n"
-              << "[0] Easy\n"
-              << "[1] Medium\n"
-              << "[2] Hard\n"
-              << "[3] Funny\n";
-    std::cin >> choice;
-
-    switch (choice) {
-        case Difficulty::EASY:
-            app->writeLog("Player::settings | selected EASY difficulty.");
-            ROWS = 9, COLUMNS = 25;
-            break;
-        case Difficulty::MEDIUM:
-            app->writeLog("Player::settings | selected MEDIUM difficulty.");
-            ROWS = 12, COLUMNS = 30;
-            break;
-        case Difficulty::FUNNY:
-            app->writeLog("Player::settings | selected FUNNY difficulty.");
-            ROWS = 5, COLUMNS = 50;
-            break;
-        case Difficulty::HARD:
-        default:
-            app->writeLog("Player::settings | selected HARD difficulty.");
-            break;
-    }
-
-    GAME_BEGIN = { ROWS / 2, 0 }, GAME_END = { ROWS / 2, COLUMNS - 1 };
-    position_ = GAME_BEGIN;
-    gameField_->recalculateField();
-    handleChoice(Choice::PLAY);
-}
-
 void Player::readme() const {
     app->writeLog("Player::readme | received instructions.");
     std::cout << "Welcome in a simple game! Before starting:\n"
-                << "[0] - play\n"
-                << "[1] - settings\n"; 
+                << "[0] - play\n";
+                //<< "[1] - settings\n"; 
 }
 
 void Player::handleChoice(short choice) {
@@ -166,10 +129,6 @@ void Player::handleChoice(short choice) {
             app->writeLog("Player::handleChoice | decided to play!");
             printBeforePlay();
             play();
-            break;
-        case SETTINGS:
-            app->writeLog("Player::handleChoice | entered settings.");
-            settings();
             break;
         default:
             app->writeLog("Player::handleChoice | selected something unclear...", LogLevel::ERROR);

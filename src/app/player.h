@@ -13,14 +13,12 @@ private:
     GameField* gameField_;
     Position position_;
     std::chrono::duration<double> gameDuration_;
-    std::mutex playerMutex_;
 
     void processMove(char move);
     void play();
     void printBeforePlay() const;
     void readme() const;
     void handleChoice(short choice);
-    void settings();
     void printWhileMazeGenerating() const;
 
 public:
