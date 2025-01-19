@@ -26,6 +26,7 @@ void runTests(const TEST_TYPE& tests) {
             std::cout << pair.first << " passed.\n";
         } catch (const std::exception& e) {
             std::cout << pair.first << " failed: " << e.what() << "\n";
+            assert(false);
         }
     }
 }
@@ -489,18 +490,8 @@ int main() {
              assert(mazeGen == 2 && game == 2 && log == 2);
          }},
 
-        {"testEmptyParams",
+        {"testNotDefaultLogLevelInLine",
          []() {
-             const std::string filename = "test_lib_log.txt";
-             std::remove(filename.c_str());
-
-             app = std::make_unique<MultithreadAppManager>("");
-             app->run();
-
-             assert(true);
-         }},
-
-        {"testNotDefaultLogLevelInLine", []() {
              const std::string filename = "test_lib_log.txt";
              std::remove(filename.c_str());
 
@@ -522,9 +513,34 @@ int main() {
              }
 
              assert(WINFO && SWARNING && D && DERROR);
-         }}};
+         }},
 
-    // runTests(onlyLibrary);
+        {"testChangeDLL",
+         []() {
+             const std::string filename = "test_lib_log.txt";
+             std::remove(filename.c_str());
+
+             std::string        commands = "\n1\nW\nD\n";
+             std::istringstream inputStream(std::to_string(Choice::CHANGE_DLL) + commands);
+             std::cin.rdbuf(inputStream.rdbuf());
+
+             app = std::make_unique<MultithreadAppManager>(filename);
+             app->run();
+
+             bool          moveUP = false, moveRIGHT = false;
+             std::ifstream logFile(filename);
+             std::string   line;
+             while (std::getline(logFile, line)) {
+                 if (line.find("[WARNING] Player::processMove | failed to move up.") != std::string::npos)
+                     moveUP = true;
+                 if (line.find("[INFO] Player::processMove | data = D") != std::string::npos) moveRIGHT = true;
+             }
+
+             assert(moveUP && !moveRIGHT);
+         }},
+    };
+
+    runTests(onlyLibrary);
     runTests(multithreadGameWithLib);
 
     system("clear");

@@ -21,6 +21,10 @@ void Player::processMove(char move, const std::string& logLevel) {
     bool     moveSuccessful = false;
 
     switch (tolower(move)) {
+        case '1':
+            printAboutChangingDLL();
+            processDLL();
+            break;
         case 'w':
             if (newPosition.x - 1 >= 0 && gameField_->isWalkable(newPosition.x - 1, newPosition.y)) {
                 --newPosition.x;
@@ -68,10 +72,6 @@ void Player::processMove(char move, const std::string& logLevel) {
                 app->writeLog("Player::processMove | failed to move right.",
                               parseLogLevelStringWithDefault(logLevel, WARNING));
             }
-            break;
-        case '1':
-            printAboutChangingDLL();
-            processDLL();
             break;
         default:
             std::cout << "Unknown movement! Please enter the correct data.\n";
@@ -186,7 +186,7 @@ void Player::processDLL() const {
     short level;
     std::cin >> level;
 
-    if (level > LogLevel::ERROR || level < LogLevel::INFO) {
+    if (level > static_cast<int>(LogLevel::ERROR) || level < static_cast<int>(LogLevel::INFO)) {
         std::cout << "Not accepted!\n";
         std::this_thread::sleep_for(std::chrono::seconds(1));
         return;
