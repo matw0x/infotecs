@@ -536,6 +536,7 @@ int main() {
                  if (line.find("[INFO] Player::processMove | data = D") != std::string::npos) moveRIGHT = true;
              }
 
+             std::remove(filename.c_str());
              assert(moveUP && !moveRIGHT);
          }},
     };
