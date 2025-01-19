@@ -13,33 +13,45 @@
 ## Как собрать и запустить проект
 
 1. Клонируйте репозиторий:
-    ```bash
-    git clone git@github.com:matw0x/infotecs.git
-    ```
+
+   ```bash
+   git clone git@github.com:matw0x/infotecs.git
+   ```
 
 2. Перейдите в директорию проекта:
-    ```bash
-    cd infotecs
-    ```
+
+   ```bash
+   cd infotecs
+   ```
 
 3. Установите библиотеку в систему:
-    ```bash
-    make install
-    ```
 
-4. Для запуска тестов и основного приложения используйте команды:
-    ```bash
-    make test    # для запуска тестов
-    make app     # для запуска основного приложения
-    ```
+   ```bash
+   make install
+   ```
+
+4. Для компиляции тестов и основного приложения используйте команды:
+
+   ```bash
+   make test
+   make app
+   ```
 
 5. После завершения работы, результаты будут находиться в:
-    ```bash
-    build/test   # для тестов
-    build/app    # для приложения
-    ```
+
+   ```bash
+   build/test                              # для тестов
+   build/app <filename>.txt <DEFAULT_LOG_LEVEL>    # для приложения
+   ```
+
+   Список уровней важности: INFO, WARNING, ERROR.
+   Пример запуска приложения:
+
+   ```bash
+   build/app logs.txt INFO
+   ```
 
 6. Для удаления библиотеки из системы:
-    ```bash
-    make uninstall
-    ```
+   ```bash
+   make uninstall
+   ```

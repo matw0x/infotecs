@@ -1,9 +1,9 @@
 #include "manager.h"
 
 MultithreadAppManager::MultithreadAppManager(const std::string& logFilename, LogLevel logLevel, LogType logType)
-    : gameField_(std::make_unique<GameField>(ROWS, COLUMNS)),
+    : logger_(std::make_unique<Logger>(logFilename, logLevel, logType)),
+      gameField_(std::make_unique<GameField>(ROWS, COLUMNS)),
       player_(std::make_unique<Player>(gameField_.get())),
-      logger_(std::make_unique<Logger>(logFilename, logLevel, logType)),
       logThreadRunning_(true),
       mazeGeneratedThread_(false) {}
 

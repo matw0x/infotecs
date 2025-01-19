@@ -22,5 +22,5 @@ const Position GAME_BEGIN = {ROWS / 2, 0}, GAME_END = {ROWS / 2, COLUMNS - 1};  
 const Position UP_POS = {-1, 0}, DOWN_POS = {1, 0}, LEFT_POS = {0, -1}, RIGHT_POS = {0, 1};
 // важно помнить, что в программировании будут не совсем те координаты
 
-enum Choice { PLAY, IDK };
+enum Choice { PLAY, CHANGE_DLL };
 enum Direction { UP, DOWN, LEFT, RIGHT };

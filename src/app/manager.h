@@ -14,10 +14,11 @@
 #include "player.h"
 
 class MultithreadAppManager {
+   public:
+    std::unique_ptr<Logger> logger_;  // библиотека
    private:
     std::unique_ptr<GameField> gameField_;  // игровое поле
     std::unique_ptr<Player>    player_;     // игрок
-    std::unique_ptr<Logger>    logger_;     // библиотека
 
     std::thread mazeGenerateThread_, gameThread_,
         logThread_;  // потоки: для генерации лабиринта, игровой, запись в журнал

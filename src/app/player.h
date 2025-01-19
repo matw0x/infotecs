@@ -14,12 +14,14 @@ class Player {
     Position                      position_;      // текущая позиция игрока
     std::chrono::duration<double> gameDuration_;  // время прохождения карты
 
-    void processMove(char move);      // обработка движения игрока
-    void play();                      // старт
-    void printBeforePlay() const;     // вывод предыгровой информации
-    void readme() const;              // инструкция, как играть
-    void handleChoice(short choice);  // обработка выбора игрока
+    void processMove(char move, const std::string& logLevel);  // обработка движения игрока
+    void play();                                               // старт
+    void printBeforePlay() const;                              // вывод предыгровой информации
+    void readme() const;                                       // инструкция, как играть
+    void handleChoice(short choice);                           // обработка выбора игрока
     void printWhileMazeGenerating() const;  // вывод информации с ожиданием, пока поток генерации активен
+    void printAboutChangingDLL() const;  // вывод об изменении уровня по умолчанию
+    void processDLL() const;
 
    public:
     Player(GameField* gameField);

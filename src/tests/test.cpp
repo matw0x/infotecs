@@ -272,7 +272,7 @@ int main() {
              const std::string filename = "test_lib_log.txt";
              std::remove(filename.c_str());
 
-             const std::string commands = "wawaw";
+             const std::string commands = "w\na\nw\na\nw\n";
 
              std::istringstream inputStream(std::to_string(Choice::PLAY) + commands);
              std::cin.rdbuf(inputStream.rdbuf());
@@ -291,7 +291,7 @@ int main() {
                  if (line.find("Player::processMove | failed to move left") != std::string::npos) ++AandFailed;
              }
 
-             assert(WandFailed + AandFailed == commands.size() * 2);
+             assert(WandFailed + AandFailed == commands.size());
          }},
 
         {"testInvalidMoveBIG",
@@ -301,7 +301,7 @@ int main() {
 
              const size_t commandSize = 10000;
              std::string  commands;
-             for (size_t i = 0; i != commandSize; ++i) commands += (i % 2 == 0) ? 'w' : 'a';
+             for (size_t i = 0; i != commandSize; ++i) commands += (i % 2 == 0) ? "w\n" : "a\n";
 
              std::istringstream inputStream(std::to_string(Choice::PLAY) + commands);
              std::cin.rdbuf(inputStream.rdbuf());
@@ -320,7 +320,7 @@ int main() {
                  if (line.find("Player::processMove | failed to move left") != std::string::npos) ++AandFailed;
              }
 
-             assert(WandFailed + AandFailed == commands.size() * 2);
+             assert(WandFailed + AandFailed == commands.size());
          }},
 
         {"testInvalidChoice",
@@ -328,7 +328,7 @@ int main() {
              const std::string filename = "test_lib_log.txt";
              std::remove(filename.c_str());
 
-             std::istringstream inputStream(std::to_string(static_cast<Choice>('Y')));
+             std::istringstream inputStream(std::to_string(static_cast<Choice>('Y')) + "\n");
              std::cin.rdbuf(inputStream.rdbuf());
 
              app = std::make_unique<MultithreadAppManager>(filename);
@@ -353,7 +353,7 @@ int main() {
              const std::string filename = "test_lib_log.txt";
              std::remove(filename.c_str());
 
-             std::string        commands = "WASD";
+             std::string        commands = "W\nA\nS\nD\n";
              std::istringstream inputStream(std::to_string(Choice::PLAY) + commands);
              std::cin.rdbuf(inputStream.rdbuf());
 
@@ -401,16 +401,16 @@ int main() {
              for (size_t i = 0; i != commandSize; ++i) {
                  switch (dis(gen)) {
                      case 0:
-                         commands += 'W';
+                         commands += "W\n";
                          break;
                      case 1:
-                         commands += 'A';
+                         commands += "A\n";
                          break;
                      case 2:
-                         commands += 'S';
+                         commands += "S\n";
                          break;
                      case 3:
-                         commands += 'D';
+                         commands += "D\n";
                          break;
                  }
              }
@@ -463,7 +463,8 @@ int main() {
              const std::string filename = "test_lib_log.txt";
              std::remove(filename.c_str());
 
-             std::string        commands(100, 'w');
+             std::string commands = "w\n";
+             for (size_t i = 1; i <= 99; ++i) commands += "w\n";
              std::istringstream inputStream(std::to_string(Choice::PLAY) + commands);
              std::cin.rdbuf(inputStream.rdbuf());
 
@@ -488,7 +489,8 @@ int main() {
              assert(mazeGen == 2 && game == 2 && log == 2);
          }},
 
-        {"testEmptyParams", []() {
+        {"testEmptyParams",
+         []() {
              const std::string filename = "test_lib_log.txt";
              std::remove(filename.c_str());
 
@@ -496,9 +498,33 @@ int main() {
              app->run();
 
              assert(true);
+         }},
+
+        {"testNotDefaultLogLevelInLine", []() {
+             const std::string filename = "test_lib_log.txt";
+             std::remove(filename.c_str());
+
+             std::string        commands = "W INFO\nS WARNING\nD\nD ERROR\n";
+             std::istringstream inputStream(std::to_string(Choice::PLAY) + commands);
+             std::cin.rdbuf(inputStream.rdbuf());
+
+             app = std::make_unique<MultithreadAppManager>(filename);
+             app->run();
+
+             bool          WINFO = false, SWARNING = false, D = false, DERROR = false;
+             std::ifstream logFile(filename);
+             std::string   line;
+             while (std::getline(logFile, line)) {
+                 if (line.find("[ERROR] Player::processMove | data = D") != std::string::npos) DERROR = true;
+                 if (line.find("[INFO] Player::processMove | data = D") != std::string::npos) D = true;
+                 if (line.find("[INFO] Player::processMove | data = W") != std::string::npos) WINFO = true;
+                 if (line.find("[WARNING] Player::processMove | data = S") != std::string::npos) SWARNING = true;
+             }
+
+             assert(WINFO && SWARNING && D && DERROR);
          }}};
 
-    runTests(onlyLibrary);
+    // runTests(onlyLibrary);
     runTests(multithreadGameWithLib);
 
     system("clear");

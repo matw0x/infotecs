@@ -2,9 +2,21 @@
 
 #include "manager.h"
 
-void Player::processMove(char move) {
+LogLevel parseLogLevelStringWithDefault(const std::string& logLevel, LogLevel defaultForLog) {
+    if (logLevel == "INFO")
+        return INFO;
+    else if (logLevel == "WARNING")
+        return WARNING;
+    else if (logLevel == "ERROR")
+        return ERROR;
+    else
+        return defaultForLog;
+}
+
+void Player::processMove(char move, const std::string& logLevel) {
     // обрабатываем движение: смотрим, можно ли ходить игроку
-    app->writeLog("Player::processMove | data = " + std::string(1, move));
+    app->writeLog("Player::processMove | data = " + std::string(1, move),
+                  parseLogLevelStringWithDefault(logLevel, INFO));
     Position newPosition    = position_;
     bool     moveSuccessful = false;
 
@@ -14,9 +26,11 @@ void Player::processMove(char move) {
                 --newPosition.x;
                 moveSuccessful = true;
                 app->writeLog("Player::processMove | moving up. New coordinates: " + std::to_string(newPosition.y) +
-                              ';' + std::to_string(newPosition.x));
+                                  ';' + std::to_string(newPosition.x),
+                              parseLogLevelStringWithDefault(logLevel, INFO));
             } else {
-                app->writeLog("Player::processMove | failed to move up.");
+                app->writeLog("Player::processMove | failed to move up.",
+                              parseLogLevelStringWithDefault(logLevel, WARNING));
             }
             break;
         case 's':
@@ -24,9 +38,11 @@ void Player::processMove(char move) {
                 ++newPosition.x;
                 moveSuccessful = true;
                 app->writeLog("Player::processMove | moving down. New coordinates: " + std::to_string(newPosition.y) +
-                              ';' + std::to_string(newPosition.x));
+                                  ';' + std::to_string(newPosition.x),
+                              parseLogLevelStringWithDefault(logLevel, INFO));
             } else {
-                app->writeLog("Player::processMove | failed to move down.");
+                app->writeLog("Player::processMove | failed to move down.",
+                              parseLogLevelStringWithDefault(logLevel, WARNING));
             }
             break;
         case 'a':
@@ -34,9 +50,11 @@ void Player::processMove(char move) {
                 --newPosition.y;
                 moveSuccessful = true;
                 app->writeLog("Player::processMove | moving left. New coordinates: " + std::to_string(newPosition.y) +
-                              ';' + std::to_string(newPosition.x));
+                                  ';' + std::to_string(newPosition.x),
+                              parseLogLevelStringWithDefault(logLevel, INFO));
             } else {
-                app->writeLog("Player::processMove | failed to move left.");
+                app->writeLog("Player::processMove | failed to move left.",
+                              parseLogLevelStringWithDefault(logLevel, WARNING));
             }
             break;
         case 'd':
@@ -44,14 +62,22 @@ void Player::processMove(char move) {
                 ++newPosition.y;
                 moveSuccessful = true;
                 app->writeLog("Player::processMove | moving right. New coordinates: " + std::to_string(newPosition.y) +
-                              ';' + std::to_string(newPosition.x));
+                                  ';' + std::to_string(newPosition.x),
+                              parseLogLevelStringWithDefault(logLevel, INFO));
             } else {
-                app->writeLog("Player::processMove | failed to move right.");
+                app->writeLog("Player::processMove | failed to move right.",
+                              parseLogLevelStringWithDefault(logLevel, WARNING));
             }
+            break;
+        case '1':
+            printAboutChangingDLL();
+            processDLL();
             break;
         default:
             std::cout << "Unknown movement! Please enter the correct data.\n";
-            app->writeLog("Player::processMove | incorrect data.", LogLevel::WARNING);
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            app->writeLog("Player::processMove | incorrect data = " + std::to_string(move),
+                          parseLogLevelStringWithDefault(logLevel, ERROR));
             return;
     }
 
@@ -67,13 +93,12 @@ Player::Player(GameField* gameField) : gameField_(gameField), position_(GAME_BEG
 
 void Player::printBeforePlay() const {
     app->writeLog("Player::printBeforePlay | received information before starting.");
-    std::cout << "Nice choice!\n";
     std::cout << "Control keys:\n"
               << "\tW - up\n"
               << "\tA - left\n"
               << "\tS - down\n"
               << "\tD - right\n";
-
+    std::cout << "[1] - change default log level\n";
     std::cout << "These messages will disappear!\n";
 }
 
@@ -98,8 +123,9 @@ void Player::play() {
     // это сделано ради работы тестов
     printWhileMazeGenerating();
 
-    auto begin = std::chrono::high_resolution_clock::now();
-    char move;
+    auto        begin = std::chrono::high_resolution_clock::now();
+    char        move;
+    std::string userInput;
     while (true) {
         gameField_->clearScreen();
         gameField_->display();
@@ -117,22 +143,59 @@ void Player::play() {
 
         if (std::cin.eof()) break;
 
-        std::cin >> move;
+        std::getline(std::cin, userInput);
+        if (userInput.empty()) continue;
 
-        if (!std::cin.fail())
-            processMove(move);
-        else
+        move                    = userInput[0];
+        std::string logLevelStr = (userInput.size() > 2) ? userInput.substr(2) : "ANY";
+
+        if (!std::cin.fail()) {
+            processMove(move, logLevelStr);
+        } else {
             break;
+        }
 
-        if (std::cin.eof()) break;
+        if (std::cin.eof()) break;  // чтобы не дублировался последний символ
     }
 }
 
 void Player::readme() const {
     app->writeLog("Player::readme | received instructions.");
     std::cout << "Welcome in a simple game! Before starting:\n"
-              << "[0] - play\n";
-    //<< "[1] - settings\n";
+              << "[0] - play\n"
+              << "[1] - change default log level and play (also can do this while running)\n";
+}
+
+void Player::printAboutChangingDLL() const {
+    app->writeLog("Player::printAboutChangingDLL | received instructions.");
+    std::cout << "Just select default log level, which you want:\n";
+
+    std::string INFO = "[0] - INFO", WARNING = "[1] - WARNING", ERROR = "[2] - ERROR";
+
+    if (app->logger_->getLogLevel() == LogLevel::INFO)
+        INFO += " <= current";
+    else if (app->logger_->getLogLevel() == LogLevel::WARNING)
+        WARNING += " <= current";
+    else
+        ERROR += " <= current";
+
+    std::cout << INFO << std::endl << WARNING << std::endl << ERROR << std::endl;
+}
+
+void Player::processDLL() const {
+    short level;
+    std::cin >> level;
+
+    if (level > LogLevel::ERROR || level < LogLevel::INFO) {
+        std::cout << "Not accepted!\n";
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        return;
+    }
+
+    app->logger_->changeLogLevel(static_cast<LogLevel>(level));
+    app->writeLog("Player::processDLL | changed default log level!");
+    std::cout << "Settings saved. Go play!\n";
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
 void Player::handleChoice(short choice) {
@@ -143,6 +206,12 @@ void Player::handleChoice(short choice) {
             app->writeLog("Player::handleChoice | decided to play!");
             printBeforePlay();
             play();
+            break;
+        case CHANGE_DLL:
+            app->writeLog("Player::handleChoice | open menu to change default log level.");
+            printAboutChangingDLL();
+            processDLL();
+            handleChoice(Choice::PLAY);
             break;
         default:
             app->writeLog("Player::handleChoice | selected something unclear...", LogLevel::ERROR);
